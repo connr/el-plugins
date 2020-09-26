@@ -139,7 +139,7 @@ public class sandstoneminerPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("PowerSkiller"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("sandstoneminer"))
 		{
 			return;
 		}
