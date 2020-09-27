@@ -342,7 +342,7 @@ public class karambwanfisherPlugin extends Plugin
 					timeout = tickDelay();
 					break;
 				case WALK_TO_BANK:
-					utils.walk(new WorldPoint(2380+utils.getRandomIntBetweenRange(0,6),4454+utils.getRandomIntBetweenRange(0,6),0),0,sleepDelay());
+					utils.walk(new WorldPoint(2381+utils.getRandomIntBetweenRange(0,5),4455+utils.getRandomIntBetweenRange(0,5),0),0,sleepDelay());
 					timeout = tickDelay();
 					break;
 				case FIND_BANK:
@@ -357,10 +357,6 @@ public class karambwanfisherPlugin extends Plugin
 					interactFairyRing(29560,5);
 					timeout = tickDelay();
 					break;
-				default:
-					karambwanFisherFunction();
-					timeout = tickDelay();
-					break;
 			}
 		}
 	}
@@ -373,11 +369,6 @@ public class karambwanfisherPlugin extends Plugin
 			state = TIMEOUT;
 			timeout = 2;
 		}
-	}
-
-	private void karambwanFisherFunction()
-	{
-
 	}
 
 	private karambwanfisherState getKarambwanFisherState()
