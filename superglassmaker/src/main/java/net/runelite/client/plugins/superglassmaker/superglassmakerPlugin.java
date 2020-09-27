@@ -168,7 +168,6 @@ public class superglassmakerPlugin extends Plugin
 				tickTimer+=3+tickDelay();
 				break;
 			case "BANKING_FOR_SUPPLIES":
-
 				if(!utils.isBankOpen()){
 					openNearestBank();
 					tickTimer+=tickDelay();
@@ -193,7 +192,7 @@ public class superglassmakerPlugin extends Plugin
 			clientTickBreak--;
 			return;
 		}
-		clientTickBreak+=utils.getRandomIntBetweenRange(15,20);
+		clientTickBreak+=(utils.getRandomIntBetweenRange(15,20)+config.clientTickDelay());
 
 
 

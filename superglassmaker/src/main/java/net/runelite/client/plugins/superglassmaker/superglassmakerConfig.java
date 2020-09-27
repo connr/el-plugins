@@ -61,7 +61,7 @@ public interface superglassmakerConfig extends Config
 			keyName = "useCustomDelays",
 			name = "Use custom delays",
 			description = "Enable this to set custom delays.",
-			position = 2
+			position = 3
 	)
 	default boolean useCustomDelays()
 	{
@@ -72,13 +72,13 @@ public interface superglassmakerConfig extends Config
 			keyName = "instructions2",
 			name = "",
 			description = "Instructions. Don't enter anything into this field",
-			position = 3,
+			position = 4,
 			hidden = true,
 			unhide = "useCustomDelays"
 	)
 	default String instructions2()
 	{
-		return "Please enter your custom delays below, they should be in the form:" +
+		return "Please enter your custom delays below, they should be in the form: " +
 				"\"minimum,maximum,target,variance\"";
 	}
 
@@ -86,13 +86,26 @@ public interface superglassmakerConfig extends Config
 			keyName = "customDelays",
 			name = "Set Custom Delays",
 			description = "Set custom delays using this.",
-			position = 4,
+			position = 5,
 			hidden = true,
 			unhide = "useCustomDelays"
 	)
 	default String customDelays()
 	{
 		return "1,5,3,1";
+	}
+
+	@ConfigItem(
+			keyName = "clientTickDelay",
+			name = "Add Client Tick Delay",
+			description = "Adds this number to the client tick delay.",
+			position = 6,
+			hidden = true,
+			unhide = "useCustomDelays"
+	)
+	default int clientTickDelay()
+	{
+		return 0;
 	}
 
 	@ConfigItem(
