@@ -95,6 +95,7 @@ public class cookerPlugin extends Plugin
 	Instant botTimer;
 	LocalPoint beforeLoc;
 	Player player;
+	int opcode;
 	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
 
 	WorldPoint HOSIDIUS_BANK = new WorldPoint(1676,3615,0);
@@ -210,7 +211,7 @@ public class cookerPlugin extends Plugin
 
 	private void interactCooker()
 	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),10,21302);
+		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.rangeObjectId());
 		if (targetObject != null)
 		{
 			targetMenu = new MenuEntry("", "", targetObject.getId(), 3,
@@ -226,10 +227,10 @@ public class cookerPlugin extends Plugin
 
 	private void openBank()
 	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),10,21301);
+		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.bankObjectId());
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("", "", targetObject.getId(), 3,
+			targetMenu = new MenuEntry("", "", targetObject.getId(), config.bankOpCode(),
 					targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			utils.setMenuEntry(targetMenu);
 			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
@@ -405,5 +406,8 @@ public class cookerPlugin extends Plugin
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
 		log.info(event.toString());
+		if(config.valueFinder()){
+			utils.sendGameMessage("Id: " + event.getIdentifier() + ", Op Code: " + event.getOpcode() + ".");
+		}
 	}
 }

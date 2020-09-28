@@ -213,12 +213,12 @@ public interface cookerConfiguration extends Config
 	}
 
 	@ConfigTitleSection(
-		keyName = "instructionsTitle",
-		name = "Instructions",
-		description = "",
-		position = 16
+			keyName = "cookerfisherTitle",
+			name = "Cooker Configuration",
+			description = "",
+			position = 20
 	)
-	default Title instructionsTitle()
+	default Title cookerTitle()
 	{
 		return new Title();
 	}
@@ -227,23 +227,11 @@ public interface cookerConfiguration extends Config
 		keyName = "instructions",
 		name = "",
 		description = "Instructions. Don't enter anything into this field",
-		position = 20,
-		titleSection = "instructionsTitle"
+		position = 40
 	)
 	default String instructions()
 	{
-		return "Cooks raw food in Hosidius kitchen.";
-	}
-
-	@ConfigTitleSection(
-		keyName = "cookerfisherTitle",
-		name = "Cooker Configuration",
-		description = "",
-		position = 60
-	)
-	default Title cookerTitle()
-	{
-		return new Title();
+		return "Cooks raw food. Doesn't currently work with NPCs to bank or fires to cook.";
 	}
 
 	@ConfigItem(
@@ -256,6 +244,62 @@ public interface cookerConfiguration extends Config
 	default int rawFoodId()
 	{
 		return 0;
+	}
+
+	@ConfigItem(
+			keyName = "instructions2",
+			name = "",
+			description = "Instructions2. Don't enter anything into this field",
+			position = 82
+	)
+	default String instructions3()
+	{
+		return "Click Value Finder and click on a bank. Check chat for the IDs you should enter here. Hosidius range settings: bankId: 21301, opCode: 3, rangeId: 21302.";
+	}
+
+	@ConfigItem(
+			keyName = "valueFinder",
+			name = "Value Finder",
+			description = "Enable this to get a game output of values for the settings.",
+			position = 83
+	)
+	default boolean valueFinder()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "bankObjectId",
+			name = "Bank Object Id",
+			description = "Enter the ID of a bank booth, chest or similar. Will not work with NPCs.",
+			position = 84
+	)
+	default int bankObjectId()
+	{
+		return 21301;
+	}
+
+
+	@ConfigItem(
+			keyName = "bankOpCode",
+			name = "Bank Op Code",
+			description = "Enter the Op of a bank booth, chest or similar. Will not work with NPCs.",
+			position = 85
+	)
+	default int bankOpCode()
+	{
+		return 3;
+	}
+
+	@ConfigItem(
+			keyName = "rangeObjectId",
+			name = "Range Object Id",
+			description = "Enter the ID of a range. Will not work with fires.",
+			position = 86
+	)
+	default int rangeObjectId()
+	{
+		return 21302;
 	}
 
 	@ConfigItem(
