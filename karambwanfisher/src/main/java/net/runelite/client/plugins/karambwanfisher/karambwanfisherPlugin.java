@@ -382,7 +382,7 @@ public class karambwanfisherPlugin extends Plugin
 				return WALK_TO_MIDDLE;
 			}
 			if(player.getWorldArea().intersectsWith(ZANARIS_MID_AREA)){
-				return WALK_TO_BANK;
+				return utils.findNearestNpcWithin(player.getWorldLocation(), 25, Collections.singleton(3092))==null ? WALK_TO_BANK : FIND_BANK;
 			}
 			if(player.getWorldArea().intersectsWith(ZANARIS_BANK_AREA)){
 				return FIND_BANK;

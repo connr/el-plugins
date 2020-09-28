@@ -141,6 +141,7 @@ public class superglassmakerPlugin extends Plugin
 		}
 
 		status = checkPlayerStatus();
+		updateLeftValues();
 		log.info(status);
 
 		switch (status) {
@@ -152,7 +153,6 @@ public class superglassmakerPlugin extends Plugin
 				break;
 			case "DEPOSITING_FULL_INVENTORY":
 				if(utils.isBankOpen()){
-					updateLeftValues();
 					targetMenu = new MenuEntry("Deposit inventory","",1,57,-1,786473,false);
 					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 					utils.pressKey(27);
