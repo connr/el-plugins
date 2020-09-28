@@ -32,6 +32,7 @@ include(":firemaker")
 include(":bloodrunecrafter")
 include(":sandstoneminer")
 include(":karambwanfisher")
+include(":cooker")
 
 for (project in rootProject.children) {
     project.apply {

@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.karambwanfisher;
+package net.runelite.client.plugins.cooker;
 
 import net.runelite.client.config.Button;
 import net.runelite.client.config.Config;
@@ -34,8 +34,8 @@ import net.runelite.client.config.ConfigTitleSection;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Title;
 
-@ConfigGroup("karambwanfisher")
-public interface karambwanfisherConfiguration extends Config
+@ConfigGroup("cooker")
+public interface cookerConfiguration extends Config
 {
 
 	@ConfigSection(
@@ -232,19 +232,30 @@ public interface karambwanfisherConfiguration extends Config
 	)
 	default String instructions()
 	{
-		return "Fishes karambwans. " +
-			"Banks in zanaris.";
+		return "Cooks raw food in Hosidius kitchen.";
 	}
 
 	@ConfigTitleSection(
-		keyName = "karambwanfisherTitle",
-		name = "Karambwan Fisher Configuration",
+		keyName = "cookerfisherTitle",
+		name = "Cooker Configuration",
 		description = "",
 		position = 60
 	)
-	default Title karambwanfisherTitle()
+	default Title cookerTitle()
 	{
 		return new Title();
+	}
+
+	@ConfigItem(
+			keyName = "rawFoodId",
+			name = "Raw Food ID",
+			description = "Enter your raw food ID here.",
+			position = 70,
+			section = "cookerTitle"
+	)
+	default int rawFoodId()
+	{
+		return 0;
 	}
 
 	@ConfigItem(
@@ -252,7 +263,7 @@ public interface karambwanfisherConfiguration extends Config
 		name = "Enable UI",
 		description = "Enable to turn on in game UI",
 		position = 140,
-		titleSection = "karambwanfisherTitle"
+		titleSection = "cookerTitle"
 	)
 	default boolean enableUI()
 	{

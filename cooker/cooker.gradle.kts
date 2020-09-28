@@ -25,8 +25,8 @@
 
 version = "0.0.3"
 
-project.extra["PluginName"] = "El Karambwans" // This is the name that is used in the external plugin manager panel
-project.extra["PluginDescription"] = "Fishes karambwans" // This is the description that is used in the external plugin manager panel
+project.extra["PluginName"] = "El Cooker" // This is the name that is used in the external plugin manager panel
+project.extra["PluginDescription"] = "Cooks raw food" // This is the description that is used in the external plugin manager panel
 
 
 dependencies {
