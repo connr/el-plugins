@@ -247,10 +247,23 @@ public interface cookerConfiguration extends Config
 	}
 
 	@ConfigItem(
+			keyName = "roguesDen",
+			name = "Rogues' Den",
+			description = "Enable this to cook in Rogues' Den.",
+			position = 75,
+			section = "cookerTitle"
+	)
+	default boolean roguesDen()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 			keyName = "instructions2",
 			name = "",
 			description = "Instructions2. Don't enter anything into this field",
-			position = 82
+			position = 82,
+			hide = "roguesDen"
 	)
 	default String instructions3()
 	{
@@ -261,7 +274,8 @@ public interface cookerConfiguration extends Config
 			keyName = "valueFinder",
 			name = "Value Finder",
 			description = "Enable this to get a game output of values for the settings.",
-			position = 83
+			position = 83,
+			hide = "roguesDen"
 	)
 	default boolean valueFinder()
 	{
@@ -272,7 +286,8 @@ public interface cookerConfiguration extends Config
 			keyName = "bankObjectId",
 			name = "Bank Object Id",
 			description = "Enter the ID of a bank booth, chest or similar. Will not work with NPCs.",
-			position = 84
+			position = 84,
+			hide = "roguesDen"
 	)
 	default int bankObjectId()
 	{
@@ -284,7 +299,8 @@ public interface cookerConfiguration extends Config
 			keyName = "bankOpCode",
 			name = "Bank Op Code",
 			description = "Enter the Op of a bank booth, chest or similar. Will not work with NPCs.",
-			position = 85
+			position = 85,
+			hide = "roguesDen"
 	)
 	default int bankOpCode()
 	{
@@ -295,7 +311,8 @@ public interface cookerConfiguration extends Config
 			keyName = "rangeObjectId",
 			name = "Range Object Id",
 			description = "Enter the ID of a range. Will not work with fires.",
-			position = 86
+			position = 86,
+			hide = "roguesDen"
 	)
 	default int rangeObjectId()
 	{

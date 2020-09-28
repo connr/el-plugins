@@ -90,11 +90,13 @@ public class cookerPlugin extends Plugin
 
 	cookerState state;
 	GameObject targetObject;
+	NPC targetNpc;
 	MenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
 	Player player;
+	boolean firstTime;
 	int opcode;
 	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
 
@@ -142,6 +144,7 @@ public class cookerPlugin extends Plugin
 		startCooker = false;
 		startRaw=0;
 		currentRaw=0;
+		firstTime=true;
 	}
 
 	@Subscribe
@@ -163,6 +166,7 @@ public class cookerPlugin extends Plugin
 				botTimer = Instant.now();
 				setLocation();
 				overlayManager.add(overlay);
+				firstTime=true;
 			}
 			else
 			{
@@ -225,6 +229,21 @@ public class cookerPlugin extends Plugin
 		}
 	}
 
+	private void interactFire()
+	{
+		if(firstTime){
+			targetMenu = new MenuEntry("Use","Use",config.rawFoodId(),38,utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),9764864,false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(utils.getInventoryWidgetItem(config.rawFoodId()).getCanvasBounds(), sleepDelay());
+			firstTime=false;
+		} else {
+			targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
+			targetMenu = new MenuEntry("Use","<col=ff9040>Raw shark<col=ffffff> -> <col=ffff>Fire",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+		}
+	}
+
 	private void openBank()
 	{
 		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.bankObjectId());
@@ -238,6 +257,17 @@ public class cookerPlugin extends Plugin
 		else
 		{
 			log.info("Cooker is null.");
+		}
+	}
+
+	private void openBankRogues()
+	{
+		targetNpc = utils.findNearestNpcWithin(player.getWorldLocation(),5, Collections.singleton(3194));
+		if(targetNpc!=null){
+			targetMenu = new MenuEntry("Bank", "<col=ffff00>Emerald Benedict", 15682, 11,
+					0, 0, false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(targetNpc.getConvexHull().getBounds(), sleepDelay());
 		}
 	}
 
@@ -324,7 +354,11 @@ public class cookerPlugin extends Plugin
 					timeout--;
 					break;
 				case FIND_OBJECT:
-					interactCooker();
+					if(config.roguesDen()){
+						interactFire();
+					} else {
+						interactCooker();
+					}
 					timeout = tickDelay();
 					break;
 				case MISSING_ITEMS:
@@ -333,16 +367,22 @@ public class cookerPlugin extends Plugin
 					resetVals();
 					break;
 				case HANDLE_BREAK:
+					firstTime=true;
 					chinBreakHandler.startBreak(this);
 					timeout = 10;
 					break;
 				case ANIMATING:
 				case MOVING:
+					firstTime=true;
 					utils.handleRun(30, 20);
-					timeout = tickDelay();
+					timeout = 1+tickDelay();
 					break;
 				case FIND_BANK:
-					openBank();
+					if(config.roguesDen()){
+						openBankRogues();
+					} else {
+						openBank();
+					}
 					timeout = tickDelay();
 					break;
 				case DEPOSIT_ITEMS:
