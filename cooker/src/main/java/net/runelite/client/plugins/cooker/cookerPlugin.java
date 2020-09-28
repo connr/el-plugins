@@ -293,7 +293,7 @@ public class cookerPlugin extends Plugin
 		}
 		if (utils.inventoryFull()) //if invent is not full
 		{
-			return getCookerState(); //find a bank
+			return getCookerState();
 		}
 		return UNHANDLED_STATE;
 	}
@@ -381,7 +381,7 @@ public class cookerPlugin extends Plugin
 						utils.delayMouseClick(new Point(0,0), sleepDelay());
 					}
 				}
-			} else if(!utils.inventoryItemContainsAmount(config.rawFoodId(),28,false,true)){
+			} else {
 				return FIND_OBJECT;
 			}
 		} else {
