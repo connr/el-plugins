@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.4"
+version = "0.0.5"
 
 project.extra["PluginName"] = "El Cooker" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Cooks raw food" // This is the description that is used in the external plugin manager panel

@@ -116,7 +116,6 @@ public class bloodrunecrafterPlugin extends Plugin
 	bloodrunecrafterConfiguration provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(bloodrunecrafterConfiguration.class);
-		//TODO make GUI that can be updated in realtime, may require new JPanel
 	}
 
 	@Override
@@ -219,7 +218,13 @@ public class bloodrunecrafterPlugin extends Plugin
 			targetMenu = new MenuEntry("", "", targetObject.getId(), 3,
 					targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			if(targetObject.getConvexHull()!=null){
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			} else {
+				log.info("convex hull is null");
+				utils.delayMouseClick(new Point(0,0), sleepDelay());
+			}
+
 		}
 		else
 		{

@@ -373,7 +373,7 @@ public class cookerPlugin extends Plugin
 		{
 			if(client.getWidget(270,15)!=null){
 				if(client.getWidget(270,15).getName().equals("<col=ff9040>Cooked karambwan</col>")){
-					targetMenu=new MenuEntry("Cook","<col=ff9040>Cooked karambwan</col>",1,57,-1,17694735,false);
+					targetMenu=new MenuEntry("","",1,57,-1,17694735,false);
 					utils.setMenuEntry(targetMenu);
 					if(client.getWidget(270,15).getBounds()!=null){
 						utils.delayMouseClick(client.getWidget(270,15).getBounds(), sleepDelay());
@@ -381,7 +381,19 @@ public class cookerPlugin extends Plugin
 						utils.delayMouseClick(new Point(0,0), sleepDelay());
 					}
 				}
-			} else {
+			}
+			if(client.getWidget(270,5)!=null){
+				if(client.getWidget(270,5).getText().equals("How many would you like to cook?")){
+					targetMenu=new MenuEntry("","",1,57,-1,17694734,false);
+					utils.setMenuEntry(targetMenu);
+				if(client.getWidget(270,5).getBounds()!=null){
+					utils.delayMouseClick(client.getWidget(270,5).getBounds(), sleepDelay());
+				} else {
+					utils.delayMouseClick(new Point(0,0), sleepDelay());
+				}
+			}
+		}
+		else {
 				return FIND_OBJECT;
 			}
 		} else {
