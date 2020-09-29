@@ -22,6 +22,7 @@ import java.awt.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.List;
+import static net.runelite.client.plugins.ouraniaaltar.ouraniaaltarState.*;
 
 @Extension
 @PluginDependency(BotUtils.class)
@@ -61,7 +62,7 @@ public class ouraniaaltarPlugin extends Plugin
 	int clientTickBreak = 0;
 	int tickTimer;
 	boolean startOuraniaAltar;
-	String status = "UNKNOWN";
+	ouraniaaltarState status;
 	int runecraftProgress = 0;
 	//overlay data
 	Instant botTimer;
@@ -204,50 +205,50 @@ public class ouraniaaltarPlugin extends Plugin
 		clientTickCounter=0;
 		status = checkPlayerStatus();
 		switch (status) {
-			case "ANIMATING":
-			case "NULL_PLAYER":
-			case "TICK_TIMER":
+			case ANIMATING:
+			case NULL_PLAYER:
+			case TICK_TIMER:
 				break;
-			case "MOVING":
+			case MOVING:
 				tickTimer=tickDelay();
 				if(config.noStams()){
 					shouldRun();
 				}
 				break;
-			case "OPENING_BANK":
+			case OPENING_BANK:
 				if(runecraftProgress==17){
 					runecraftProgress++;
 				}
 				openEniolaBank();
 				break;
-			case "MISSING_REQUIRED":
+			case MISSING_REQUIRED:
 				withdrawRequiredItems();
 				break;
-			case "CLICKING_ALTAR":
+			case CLICKING_ALTAR:
 				DROP_RUNE_IDS.addAll(DROP_RUNE_IDS_CONFIG);
 				clickOuraniaAltar();
 				runecraftProgress++;
 				tickTimer=tickDelay();
 				break;
-			case "EMPTYING_POUCHES":
-				emptyPouches();
+			case EMPTYING_POUCHES:
+				status = emptyPouches();
 				break;
-			case "TELEPORT_OURANIA":
+			case TELEPORT_OURANIA:
 				teleToOurania();
 				DROP_RUNE_IDS.clear();
 				runecraftProgress++;
 				tickTimer=tickDelay();
 				break;
-			case "CLICKING_LADDER":
+			case CLICKING_LADDER:
 				climbDownLadder();
 				runecraftProgress++;
 				tickTimer=tickDelay();
 				break;
-			case "DEPOSIT_INVENT":
+			case DEPOSIT_INVENT:
 				utils.depositAll();
 				runecraftProgress=0;
 				break;
-			case "POUCH_DEGRADED":
+			case POUCH_DEGRADED:
 				fixDegradedPouch();
 				tickTimer=tickDelay();
 				break;
@@ -277,15 +278,15 @@ public class ouraniaaltarPlugin extends Plugin
 		return (int) utils.randomDelay(false,1, 3, 1, 2);
 	}
 
-	private String checkPlayerStatus()
+	private ouraniaaltarState checkPlayerStatus()
 	{
 		Player player = client.getLocalPlayer();
 		if(player==null){
-			return "NULL_PLAYER";
+			return NULL_PLAYER;
 		}
 		if(player.getPoseAnimation()!=813){
 			if(!player.getWorldLocation().equals(new WorldPoint(3058, 5579, 0))){
-				return "MOVING";
+				return MOVING;
 			}
 		}
 
@@ -297,62 +298,62 @@ public class ouraniaaltarPlugin extends Plugin
 					craftingTimer++;
 				}
 			}
-			return "ANIMATING";
+			return ANIMATING;
 		}
 		if(player.getAnimation()==-1){
 			craftingTimer=-1;
 		}
 		if(checkHitpoints()<40){
-			return "PLAYER_HP_LOW";
+			return PLAYER_HP_LOW;
 		}
 		if(tickTimer>0)
 		{
 			tickTimer--;
-			return "TICK_TIMER";
+			return TICK_TIMER;
 		}
 		if(!utils.inventoryContains(12791)){
-			return "MISSING_RUNE_POUCH";
+			return MISSING_RUNE_POUCH;
 		}
 		if(utils.inventoryContains(DEGRADED_POUCHES)){
-			return "POUCH_DEGRADED";
+			return POUCH_DEGRADED;
 		}
 		if(!utils.inventoryContainsAllOf(REQUIRED_ITEMS)){
 			if(!utils.isBankOpen()){
-				return "OPENING_BANK";
+				return OPENING_BANK;
 			} else {
-				return "MISSING_REQUIRED";
+				return MISSING_REQUIRED;
 			}
 		}
 		if(utils.inventoryContainsAllOf(REQUIRED_ITEMS)){
 			if(runecraftProgress<8){
 				if(utils.inventoryContains(RUNE_IDS)){
 					if(!utils.isBankOpen()){
-						return "OPENING_BANK";
+						return OPENING_BANK;
 					} else {
-						return "DEPOSIT_INVENT";
+						return DEPOSIT_INVENT;
 					}
 				}
 				if(!utils.isBankOpen()){
-					return "OPENING_BANK";
+					return OPENING_BANK;
 				} else {
 					return fillPouches();
 				}
 			} else if(runecraftProgress==8){
-				return "CLICKING_ALTAR";
+				return CLICKING_ALTAR;
 			} else if(runecraftProgress<15){
-				return "EMPTYING_POUCHES";
+				return EMPTYING_POUCHES;
 			} else if(runecraftProgress==15){
 				craftingTimer=-1;
-				return "TELEPORT_OURANIA";
+				return TELEPORT_OURANIA;
 			} else if(runecraftProgress==16){
-				return "CLICKING_LADDER";
+				return CLICKING_LADDER;
 			} else if(runecraftProgress==17){
-				return "OPENING_BANK";
+				return OPENING_BANK;
 			} else if(runecraftProgress==18){
-				return "DEPOSIT_INVENT";
+				return DEPOSIT_INVENT;
 			}
 		}
-		return "UNKNOWN";
+		return UNKNOWN;
 	}
 
 	private void openEniolaBank()
@@ -371,7 +372,7 @@ public class ouraniaaltarPlugin extends Plugin
 		return new Point(client.getCanvasWidth()-utils.getRandomIntBetweenRange(0,2),client.getCanvasHeight()-utils.getRandomIntBetweenRange(0,2));
 	}
 
-	private String fillPouches()
+	private ouraniaaltarState fillPouches()
 	{
 		if(startEss==0){
 			startEss = utils.getBankItemWidget(ESSENCE_ID).getItemQuantity();
@@ -383,11 +384,11 @@ public class ouraniaaltarPlugin extends Plugin
 				if(utils.inventoryContains(12631)){
 					targetMenu = new MenuEntry("Drink","<col=ff9040>Stamina potion(1)</col>",9,1007,utils.getInventoryWidgetItem(12631).getIndex(),983043,false);
 					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-					return "DRINKING_STAM";
+					return DRINKING_STAM;
 				} else {
 					targetMenu = new MenuEntry("Withdraw-1","<col=ff9040>Stamina potion(1)</col>",1,57,utils.getBankItemWidget(12631).getIndex(),786444,false);
 					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-					return "WITHDRAW_STAM";
+					return WITHDRAW_STAM;
 				}
 			}
 		}
@@ -395,11 +396,11 @@ public class ouraniaaltarPlugin extends Plugin
 			if(utils.inventoryContains(config.foodId())){
 				targetMenu = new MenuEntry("Eat","<col=ff9040>"+itemManager.getItemDefinition(config.foodId()).getName()+"</col>",9,1007,utils.getInventoryWidgetItem(config.foodId()).getIndex(),983043,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-				return "EATING_FOOD";
+				return EATING_FOOD;
 			} else {
 				targetMenu = new MenuEntry("Withdraw-1","Withdraw-1",1,57,utils.getBankItemWidget(config.foodId()).getIndex(),786444,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-				return "WITHDRAW_FOOD";
+				return WITHDRAW_FOOD;
 			}
 		}
 		if(!config.giantPouch()){
@@ -414,38 +415,38 @@ public class ouraniaaltarPlugin extends Plugin
 				targetMenu = new MenuEntry("Withdraw-All","<col=ff9040>"+itemManager.getItemDefinition(ESSENCE_ID).getName()+"</col>",7,1007,utils.getBankItemWidget(ESSENCE_ID).getIndex(),786444,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				runecraftProgress++;
-				return "WITHDRAW_ESS";
+				return WITHDRAW_ESS;
 			case 1:
 				targetMenu = new MenuEntry("Fill","<col=ff9040>Giant pouch</col>",9,1007,utils.getInventoryWidgetItem(5514).getIndex(),983043,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				runecraftProgress++;
-				return "FILL_GIANT";
+				return FILL_GIANT;
 			case 3:
 				targetMenu = new MenuEntry("Fill","<col=ff9040>Large pouch</col>",9,1007,utils.getInventoryWidgetItem(5512).getIndex(),983043,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				runecraftProgress++;
-				return "FILL_LARGE";
+				return FILL_LARGE;
 			case 4:
 				targetMenu = new MenuEntry("Fill","<col=ff9040>Medium pouch</col>",9,1007,utils.getInventoryWidgetItem(5510).getIndex(),983043,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				runecraftProgress++;
-				return "FILL_MEDIUM";
+				return FILL_MEDIUM;
 			case 5:
 				targetMenu = new MenuEntry("Fill","<col=ff9040>Small pouch</col>",9,1007,utils.getInventoryWidgetItem(5509).getIndex(),983043,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				runecraftProgress++;
-				return "FILL_SMALL";
+				return FILL_SMALL;
 			case 7:
 				targetMenu = new MenuEntry("Close","",1,57,11,786434,false);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				runecraftProgress++;
 				tickTimer=tickDelay();
-				return "CLOSING_BANK";
+				return CLOSING_BANK;
 		}
-		return "UNKNOWN";
+		return UNKNOWN;
 	}
 
-	private String emptyPouches()
+	private ouraniaaltarState emptyPouches()
 	{
 		if(config.giantPouch()){
 			switch (runecraftProgress) {
@@ -453,53 +454,53 @@ public class ouraniaaltarPlugin extends Plugin
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Small pouch</col>", 5509, 34, utils.getInventoryWidgetItem(5509).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress++;
-					return "EMPTY_SMALL";
+					return EMPTY_SMALL;
 				case 10:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Giant pouch</col>", 5514, 34, utils.getInventoryWidgetItem(5514).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress++;
-					return "EMPTY_GIANT";
+					return EMPTY_GIANT;
 				case 11:
 				case 14:
 					clickOuraniaAltar();
 					runecraftProgress++;
-					return "CLICKING_ALTAR";
+					return CLICKING_ALTAR;
 				case 12:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Large pouch</col>", 5512, 34, utils.getInventoryWidgetItem(5512).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress++;
-					return "EMPTY_LARGE";
+					return EMPTY_LARGE;
 				case 13:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Medium pouch</col>", 5510, 34, utils.getInventoryWidgetItem(5510).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress++;
-					return "EMPTY_MEDIUM";
+					return EMPTY_MEDIUM;
 			}
-			return "UNKNOWN";
+			return UNKNOWN;
 		} else {
 			switch (runecraftProgress) {
 				case 9:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Small pouch</col>", 5509, 34, utils.getInventoryWidgetItem(5509).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress++;
-					return "EMPTY_SMALL";
+					return EMPTY_SMALL;
 				case 10:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Medium pouch</col>", 5510, 34, utils.getInventoryWidgetItem(5510).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress++;
-					return "EMPTY_MEDIUM";
+					return EMPTY_MEDIUM;
 				case 11:
 				case 14:
 					clickOuraniaAltar();
 					runecraftProgress++;
-					return "CLICKING_ALTAR";
+					return CLICKING_ALTAR;
 				case 12:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Large pouch</col>", 5512, 34, utils.getInventoryWidgetItem(5512).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress=14;
-					return "EMPTY_LARGE";
+					return EMPTY_LARGE;
 			}
-			return "UNKNOWN";
+			return UNKNOWN;
 		}
 	}
 
