@@ -354,6 +354,12 @@ public class bloodrunecrafterPlugin extends Plugin
 					}
 					timeout = tickDelay();
 					break;
+				case WAIT_DENSE_ESSENCE:
+					if(player.getWorldLocation().equals(new WorldPoint(1761,3872,0))){
+						interactObject();
+					} else {
+						return;
+					}
 				default:
 					if(config.craftBloods()){
 						bloodRunecraftFunction();
