@@ -165,7 +165,7 @@ public class barbarianfisherPlugin extends Plugin
 				botTimer = Instant.now();
 				setLocation();
 				overlayManager.add(overlay);
-				rawFishIds.addAll(Arrays.asList(335,331));
+				rawFishIds.addAll(Arrays.asList(331,335));
 				cookedFishIds.addAll(Arrays.asList(333,329,343));
 				requiredIds.addAll(Arrays.asList(314,309));
 			}
@@ -313,12 +313,14 @@ public class barbarianfisherPlugin extends Plugin
 					timeout = tickDelay();
 					break;
 				case FIND_GAMEOBJECT:
-					for(int rawFish : rawFishIds){
-						if(utils.inventoryContains(rawFish)){
-							interactFire(rawFish);
-							timeout = tickDelay();
-							break;
-						}
+					if(utils.inventoryContains(335)){
+						interactFire(335);
+						timeout = tickDelay();
+						break;
+					} else if(utils.inventoryContains(331)){
+						interactFire(331);
+						timeout = tickDelay();
+						break;
 					}
 					timeout = tickDelay();
 					break;
