@@ -108,6 +108,11 @@ subprojects {
             options.encoding = "UTF-8"
         }
 
+        register<Copy>("copyDeps") {
+            into("./build/deps/")
+            from(configurations["runtimeClasspath"])
+        }
+
         withType<Jar> {
             doLast {
                 copy {
@@ -122,11 +127,6 @@ subprojects {
             isReproducibleFileOrder = true
             dirMode = 493
             fileMode = 420
-        }
-
-        register<Copy>("copyDeps") {
-            from(configurations["runtimeClasspath"])
-            into(System.getProperty("user.home") + "/.runelite/externalmanager")
         }
     }
 }

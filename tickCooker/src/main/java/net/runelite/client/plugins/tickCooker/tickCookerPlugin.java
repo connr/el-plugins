@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.barbarianfisher;
+package net.runelite.client.plugins.tickcooker;
 
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
@@ -49,28 +49,27 @@ import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.rs.api.RSClient;
 import org.pf4j.Extension;
-import static net.runelite.client.plugins.barbarianfisher.barbarianfisherState.*;
+import static net.runelite.client.plugins.tickcooker.tickcookerState.*;
 
 
 @Extension
 @PluginDependency(BotUtils.class)
 @PluginDescriptor(
-	name = "El Barbarian",
+	name = "El Tick Cooker",
 	enabledByDefault = false,
-	description = "Fishes and cooks in Barbarian Village",
-	tags = {"fish, barbarian, fishing, el"},
+	description = "Cooks karambwans.",
+	tags = {"tick, cook, food, cooking, el"},
 	type = PluginType.SKILLING
 )
 @Slf4j
-public class barbarianfisherPlugin extends Plugin
+public class tickcookerPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private barbarianfisherConfiguration config;
+	private tickcookerConfiguration config;
 
 	@Inject
 	private BotUtils utils;
@@ -85,34 +84,48 @@ public class barbarianfisherPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private barbarianfisherOverlay overlay;
+	private tickcookerOverlay overlay;
 
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
 
-	barbarianfisherState state;
+	tickcookerState state;
 	GameObject targetObject;
-	NPC targetNPC;
+	NPC targetNpc;
 	MenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
 	Player player;
+	boolean firstTime;
+	int rawKarambwanId = 3142;
+	boolean tickCooking;
+	int opcode;
 	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
+
+	WorldPoint HOSIDIUS_BANK = new WorldPoint(1676,3615,0);
+	WorldPoint HOSIDIUS_RANGE = new WorldPoint(1677,3621,0);
+
+	WorldArea HOSIDIUS_HOUSE = new WorldArea(new WorldPoint(1673,3613,0),new WorldPoint(1685,3624,0));
 
 	int timeout = 0;
 	long sleepLength;
-	boolean startBarbarianFisher;
-	boolean firstTimeUsingChisel;
-	private final Set<Integer> rawFishIds = new HashSet<>();
-	private final Set<Integer> cookedFishIds = new HashSet<>();
-	private final Set<Integer> requiredIds = new HashSet<>();
+	boolean startTickCooker;
+	private final Set<Integer> itemIds = new HashSet<>();
+
+	int startRaw;
+	int currentRaw;
+
+	static final int garbageValue = 1292618906;
+	static final String className = "ln";
+	static final String methodName = "hs";
+
 
 	@Provides
-	barbarianfisherConfiguration provideConfig(ConfigManager configManager)
+	tickcookerConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(barbarianfisherConfiguration.class);
+		return configManager.getConfig(tickcookerConfiguration.class);
 	}
 
 	@Override
@@ -136,33 +149,33 @@ public class barbarianfisherPlugin extends Plugin
 		timeout = 0;
 		botTimer = null;
 		skillLocation = null;
-		startBarbarianFisher = false;
-		requiredIds.clear();
-		rawFishIds.clear();
+		startTickCooker = false;
+		startRaw=0;
+		currentRaw=0;
+		firstTime=true;
+
 	}
 
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("barbarianfisher"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("tickcooker"))
 		{
 			return;
 		}
 		log.info("button {} pressed!", configButtonClicked.getKey());
 		if (configButtonClicked.getKey().equals("startButton"))
 		{
-			if (!startBarbarianFisher)
+			if (!startTickCooker)
 			{
-				startBarbarianFisher = true;
+				startTickCooker = true;
 				chinBreakHandler.startPlugin(this);
 				state = null;
 				targetMenu = null;
 				botTimer = Instant.now();
 				setLocation();
 				overlayManager.add(overlay);
-				rawFishIds.addAll(Arrays.asList(331,335));
-				cookedFishIds.addAll(Arrays.asList(333,329,343));
-				requiredIds.addAll(Arrays.asList(314,309));
+				firstTime=true;
 			}
 			else
 			{
@@ -174,11 +187,11 @@ public class barbarianfisherPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("karambwanfisher"))
+		if (!event.getGroup().equals("tickcooker"))
 		{
 			return;
 		}
-		startBarbarianFisher = false;
+		startTickCooker = false;
 	}
 
 	public void setLocation()
@@ -209,80 +222,147 @@ public class barbarianfisherPlugin extends Plugin
 		return tickLength;
 	}
 
-	private void interactFishingSpot()
+	static void resumePauseWidget(int widgetId, int arg){
+		try {
+
+			Class clazz = Class.forName(className);
+			Method method = clazz.getDeclaredMethod(methodName, int.class, int.class, int.class);
+			method.setAccessible(true);
+			method.invoke(null, widgetId, arg, garbageValue);
+		} catch (Exception ignored) {
+			return;
+		}
+	}
+
+	private void interactCooker()
 	{
-		targetNPC = utils.findNearestNpcWithin(player.getWorldLocation(), 10, Collections.singleton(1526));
-		if (targetNPC != null)
-		{
-			targetMenu = new MenuEntry("", "", targetNPC.getIndex(), 9, 0, 0, false);
+		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.rangeObjectId());
+		if(targetObject!=null){
+			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setModifiedMenuEntry(targetMenu,rawKarambwanId,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),1);
+			if(targetObject.getConvexHull()!=null) {
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), 0);
+			} else {
+				utils.delayMouseClick(new Point(0,0),0);
+			}
+		} else {
+			utils.sendGameMessage("cooker is null.");
+		}
+	}
+
+	private void interactFire()
+	{
+		if(firstTime){
+			targetMenu = new MenuEntry("Use","Use",rawKarambwanId,38,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),9764864,false);
 			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
+			utils.delayMouseClick(utils.getInventoryWidgetItem(rawKarambwanId).getCanvasBounds(), sleepDelay());
+			firstTime=false;
+		} else {
+			targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
+			targetMenu = new MenuEntry("Use","<col=ff9040>Raw shark<col=ffffff> -> <col=ffff>Fire",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+		}
+	}
+
+	private void openBank()
+	{
+		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.bankObjectId());
+		if (targetObject != null)
+		{
+			targetMenu = new MenuEntry("", "", targetObject.getId(), config.bankOpCode(),
+					targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
 		else
 		{
-			log.info("Fishing Spot is null");
+			log.info("Cooker is null.");
 		}
 	}
 
-	private void interactFire(int fishId)
+	private void openBankRogues()
 	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),10,26185);
-		if(targetObject!=null){
-			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setModifiedMenuEntry(targetMenu,fishId,utils.getInventoryWidgetItem(fishId).getIndex(),1);
-			if(targetObject.getConvexHull()!=null) {
-				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
-			} else {
-				utils.delayMouseClick(new Point(0,0), sleepDelay());
+		targetNpc = utils.findNearestNpcWithin(player.getWorldLocation(),5, Collections.singleton(3194));
+		if(targetNpc!=null){
+			targetMenu = new MenuEntry("Bank", "<col=ffff00>Emerald Benedict", 15682, 11,
+					0, 0, false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(targetNpc.getConvexHull().getBounds(), sleepDelay());
+		}
+	}
+
+	private tickcookerState getBankState()
+	{
+		if (startRaw == 0) {
+			startRaw=utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
+		}
+		currentRaw = utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
+		if(utils.inventoryEmpty()){
+			return WITHDRAW_ITEMS;
+		}
+		if(!utils.inventoryFull() && !utils.inventoryEmpty()){
+			return DEPOSIT_ITEMS;
+		}
+		if(utils.inventoryContains(rawKarambwanId)){ //inventory contains raw food
+			if(utils.getInventoryItemCount(rawKarambwanId,false)==28){ //contains 28 raw food
+				return FIND_OBJECT;
 			}
-		} else {
-			utils.sendGameMessage("Fire is null.");
 		}
+		if(!utils.inventoryContains(rawKarambwanId)){ //inventory doesnt contain raw food
+			return DEPOSIT_ITEMS;
+		}
+		if(!utils.bankContains(rawKarambwanId,28)){
+			return MISSING_ITEMS;
+		}
+		return UNHANDLED_STATE;
 	}
 
-	private void completeCookingMenu()
-	{
-		targetMenu = new MenuEntry("","",1,57,-1,17694734,false);
-		utils.setMenuEntry(targetMenu);
-		utils.delayMouseClick(client.getWidget(270,14).getBounds(), sleepDelay());
-	}
-
-	public barbarianfisherState getState()
+	public tickcookerState getState()
 	{
 		if (timeout > 0)
 		{
 			return TIMEOUT;
 		}
-		if(utils.iterating){
-			return ITERATING;
-		}
-		if (!utils.inventoryContains(requiredIds))
-		{
-			return MISSING_ITEMS;
-		}
 		if (utils.isMoving(beforeLoc))
 		{
-			timeout = 2 + tickDelay();
+			timeout = tickDelay();
 			return MOVING;
-		}
-		if(client.getLocalPlayer().getAnimation()!=-1){
-			return ANIMATING;
 		}
 		if (chinBreakHandler.shouldBreak(this))
 		{
 			return HANDLE_BREAK;
 		}
-		if (utils.inventoryFull())
-		{
-			return getBarbarianFisherState();
+		/*if(client.getLocalPlayer().getAnimation()!=-1){
+			return ANIMATING;
+		}*/
+		if(utils.isBankOpen()){ //if bank is open
+			return getBankState(); //check bank state
 		}
-		return FIND_NPC;
+		if (!utils.inventoryFull()) //if invent is not full
+		{
+			return FIND_BANK; //find a bank
+		}
+		if (utils.inventoryFull()) //if invent is not full
+		{
+			return getTickCookerState();
+		}
+		return UNHANDLED_STATE;
+	}
+
+	@Subscribe
+	private void onClientTick(ClientTick tick) {
+		if(client.getWidget(270,15)!=null){
+			if(!client.getWidget(270,15).isHidden()){
+				resumePauseWidget(17694735,utils.getInventoryItemCount(rawKarambwanId,false));
+			}
+		}
 	}
 
 	@Subscribe
 	private void onGameTick(GameTick tick)
 	{
-		if (!startBarbarianFisher || chinBreakHandler.isBreakActive(this))
+		if (!startTickCooker || chinBreakHandler.isBreakActive(this))
 		{
 			return;
 		}
@@ -292,7 +372,7 @@ public class barbarianfisherPlugin extends Plugin
 			if (!client.isResized())
 			{
 				utils.sendGameMessage("client must be set to resizable");
-				startBarbarianFisher = false;
+				startTickCooker = false;
 				return;
 			}
 			state = getState();
@@ -303,45 +383,43 @@ public class barbarianfisherPlugin extends Plugin
 					utils.handleRun(30, 20);
 					timeout--;
 					break;
-				case FIND_NPC:
-					interactFishingSpot();
-					timeout = tickDelay();
-					break;
-				case FIND_GAMEOBJECT:
-					if(utils.inventoryContains(335)){
-						interactFire(335);
-						timeout = tickDelay();
-						break;
-					} else if(utils.inventoryContains(331)){
-						interactFire(331);
-						timeout = tickDelay();
-						break;
+				case FIND_OBJECT:
+					if(config.roguesDen()){
+						interactFire();
+					} else {
+						interactCooker();
 					}
-					timeout = tickDelay();
-					break;
-				case COOKING_MENU:
-					completeCookingMenu();
-					timeout = tickDelay();
-					break;
-				case DROPPING_ITEMS:
-					utils.dropItems(cookedFishIds, true, config.sleepMin(), config.sleepMax());
-					timeout = tickDelay();
 					break;
 				case MISSING_ITEMS:
-					startBarbarianFisher = false;
-					utils.sendGameMessage("Missing required items IDs: " + String.valueOf(requiredIds) + " from inventory. Stopping.");
+					startTickCooker = false;
+					utils.sendGameMessage("OUT OF FOOD");
 					resetVals();
 					break;
 				case HANDLE_BREAK:
+					firstTime=true;
 					chinBreakHandler.startBreak(this);
 					timeout = 10;
 					break;
-				case ANIMATING:
+				//case ANIMATING:
 				case MOVING:
+					firstTime=true;
 					utils.handleRun(30, 20);
+					timeout = 1+tickDelay();
+					break;
+				case FIND_BANK:
+					if(config.roguesDen()){
+						openBankRogues();
+					} else {
+						openBank();
+					}
 					timeout = tickDelay();
 					break;
-				case ITERATING:
+				case DEPOSIT_ITEMS:
+					utils.depositAll();
+					timeout = tickDelay();
+					break;
+				case WITHDRAW_ITEMS:
+					utils.withdrawAllItem(rawKarambwanId);
 					timeout = tickDelay();
 					break;
 			}
@@ -351,29 +429,30 @@ public class barbarianfisherPlugin extends Plugin
 	@Subscribe
 	private void onGameStateChanged(GameStateChanged event)
 	{
-		if (event.getGameState() == GameState.LOGGED_IN && startBarbarianFisher)
+		if (event.getGameState() == GameState.LOGGED_IN && startTickCooker)
 		{
 			state = TIMEOUT;
 			timeout = 2;
 		}
 	}
 
-	private barbarianfisherState getBarbarianFisherState()
+	private tickcookerState getTickCookerState()
 	{
-		if(client.getWidget(270,5)!=null && !client.getWidget(270,5).isHidden()){
-			return COOKING_MENU;
+		log.info("getting cooker state");
+		if(utils.inventoryContains(rawKarambwanId))
+		{
+			return FIND_OBJECT;
+		} else {
+			return FIND_BANK;
 		}
-		if(utils.inventoryContains(rawFishIds)){
-			return FIND_GAMEOBJECT;
-		}
-		if(!utils.inventoryContains(rawFishIds)){
-			return DROPPING_ITEMS;
-		}
-		return TIMEOUT;
 	}
+
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
 		log.info(event.toString());
+		if(config.valueFinder()){
+			utils.sendGameMessage("Id: " + event.getIdentifier() + ", Op Code: " + event.getOpcode() + ".");
+		}
 	}
 }

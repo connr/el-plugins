@@ -178,7 +178,7 @@ public class cookerPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("karambwanfisher"))
+		if (!event.getGroup().equals("cooker"))
 		{
 			return;
 		}
@@ -427,14 +427,13 @@ public class cookerPlugin extends Plugin
 				if(client.getWidget(270,5).getText().equals("How many would you like to cook?")){
 					targetMenu=new MenuEntry("","",1,57,-1,17694734,false);
 					utils.setMenuEntry(targetMenu);
-				if(client.getWidget(270,5).getBounds()!=null){
-					utils.delayMouseClick(client.getWidget(270,5).getBounds(), sleepDelay());
-				} else {
-					utils.delayMouseClick(new Point(0,0), sleepDelay());
+					if(client.getWidget(270,5).getBounds()!=null){
+						utils.delayMouseClick(client.getWidget(270,5).getBounds(), sleepDelay());
+					} else {
+						utils.delayMouseClick(new Point(0,0), sleepDelay());
+					}
 				}
-			}
-		}
-		else {
+			} else {
 				return FIND_OBJECT;
 			}
 		} else {

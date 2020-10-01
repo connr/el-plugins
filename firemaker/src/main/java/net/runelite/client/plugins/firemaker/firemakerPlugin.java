@@ -35,7 +35,7 @@ import java.util.Set;
 @PluginDescriptor(
 	name = "El Fire Maker",
 	description = "Makes fires for you",
-	type = PluginType.MISCELLANEOUS
+	type = PluginType.SKILLING
 )
 @Slf4j
 public class firemakerPlugin extends Plugin

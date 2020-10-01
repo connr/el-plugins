@@ -23,14 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.1.1"
+version = "0.0.1"
 
-project.extra["PluginName"] = "El Cooker" // This is the name that is used in the external plugin manager panel
-project.extra["PluginDescription"] = "Cooks raw food" // This is the description that is used in the external plugin manager panel
+project.extra["PluginName"] = "El Tick Cooker" // This is the name that is used in the external plugin manager panel
+project.extra["PluginDescription"] = "Tick cooks raw karambwans." // This is the description that is used in the external plugin manager panel
 
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.5.0+");
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.7.0+");
     compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.13+")
 }
 
