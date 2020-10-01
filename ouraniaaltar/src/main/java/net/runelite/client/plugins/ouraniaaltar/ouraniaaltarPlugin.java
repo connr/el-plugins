@@ -358,8 +358,24 @@ public class ouraniaaltarPlugin extends Plugin
 
 	private void openEniolaBank()
 	{
-		targetMenu = new MenuEntry("Bank", "<col=ffff00>Eniola", 3220, 9, 0, 0, false);
-		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		if (utils.getNPCs(8132).size()!= 0) /* Hacky way to check if we are near Eniola to bank */
+		{
+			targetMenu = new MenuEntry("Bank", "<col=ffff00>Eniola", 3220, 9, 0, 0, false);
+			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		}
+		else 
+		{
+			GameObject targetObject = utils.findNearestGameObject(29635);
+			if (targetObject != null) /* If we aren't by Eniola check if we can click the ladder to get there */
+			{
+				targetMenu = new MenuEntry("Climb", "<col=ffff>Ladder", targetObject.getId(), 3, targetObject.getLocalLocation().getSceneX(), targetObject.getLocalLocation().getSceneY(), false);
+				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+			}
+			else /* We aren't stuck outside so tele, then we will click ladder next loop */
+			{
+				teleToOurania();
+			}
+		}
 	}
 
 	private Point getRandomNullPoint()
