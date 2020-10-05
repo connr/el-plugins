@@ -150,6 +150,136 @@ public interface ElBankStanderConfig extends Config
 		return 0;
 	}
 
+	@ConfigTitleSection(
+			keyName = "inventoryTitle",
+			name = "Inventory Config",
+			description = "",
+			position = 30
+	)
+	default Title inventoryTitle()
+	{
+		return new Title();
+	}
+
+	@ConfigItem(
+			keyName = "inventoryOp",
+			name = "Inventory OpCode",
+			description = "Enter the inventory opcode here.",
+			position = 31,
+			titleSection = "inventoryTitle"
+	)
+	default int inventoryOp()
+	{
+		return 0;
+	}
+
+	@ConfigTitleSection(
+			keyName = "delayTitle",
+			name = "Delay Config",
+			description = "",
+			position = 40
+	)
+	default Title delayTitle()
+	{
+		return new Title();
+	}
+
+	@ConfigItem(
+			keyName = "sleepMin",
+			name = "Sleep Min",
+			description = "Enter minimum sleep delay here.",
+			position = 41,
+			titleSection = "delayTitle"
+	)
+	default int sleepMin()
+	{
+		return 60;
+	}
+
+	@ConfigItem(
+			keyName = "sleepMax",
+			name = "Sleep Max",
+			description = "Enter maximum sleep delay here.",
+			position = 42,
+			titleSection = "delayTitle"
+	)
+	default int sleepMax()
+	{
+		return 350;
+	}
+
+	@ConfigItem(
+			keyName = "sleepDeviation",
+			name = "Sleep Deviation",
+			description = "Enter sleep delay deviation here.",
+			position = 43,
+			titleSection = "delayTitle"
+	)
+	default int sleepDeviation()
+	{
+		return 100;
+	}
+
+	@ConfigItem(
+			keyName = "sleepTarget",
+			name = "Sleep Target",
+			description = "Enter target sleep delay here.",
+			position = 44,
+			titleSection = "delayTitle"
+	)
+	default int sleepTarget()
+	{
+		return 10;
+	}
+
+	@ConfigItem(
+			keyName = "tickMin",
+			name = "Tick Min",
+			description = "Enter minimum tick delay here.",
+			position = 45,
+			titleSection = "delayTitle"
+	)
+	default int tickMin()
+	{
+		return 1;
+	}
+
+	@ConfigItem(
+			keyName = "tickMax",
+			name = "Tick Max",
+			description = "Enter maximum tick delay here.",
+			position = 46,
+			titleSection = "delayTitle"
+	)
+	default int tickMax()
+	{
+		return 3;
+	}
+
+	@ConfigItem(
+			keyName = "tickDeviation",
+			name = "Tick Deviation",
+			description = "Enter tick delay deviation here.",
+			position = 47,
+			titleSection = "delayTitle"
+	)
+	default int tickDeviation()
+	{
+		return 2;
+	}
+
+	@ConfigItem(
+			keyName = "tickTarget",
+			name = "Tick Target",
+			description = "Enter target tick delay here.",
+			position = 48,
+			titleSection = "delayTitle"
+	)
+	default int tickTarget()
+	{
+		return 2;
+	}
+
 	@ConfigItem(
 			keyName = "startButton",
 			name = "Start/Stop",

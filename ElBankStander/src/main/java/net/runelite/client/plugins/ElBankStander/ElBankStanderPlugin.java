@@ -38,10 +38,7 @@ import static net.runelite.client.plugins.botutils.Banks.BANK_SET;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Extension
 @PluginDependency(BotUtils.class)
@@ -88,6 +85,7 @@ public class ElBankStanderPlugin extends Plugin
 	long sleepLength;
 	boolean startBankStander;
 	private final Set<Integer> requiredIds = new HashSet<>();
+	Rectangle clickBounds;
 
 	private NavigationButton navButton;
 
@@ -167,13 +165,13 @@ public class ElBankStanderPlugin extends Plugin
 
 	private long sleepDelay()
 	{
-		sleepLength = utils.randomDelay(false, 60,350,100,10);
+		sleepLength = utils.randomDelay(false, config.sleepMin(),config.sleepMax(),config.sleepDeviation(),config.sleepTarget());
 		return sleepLength;
 	}
 
 	private int tickDelay()
 	{
-		int tickLength = (int) utils.randomDelay(false,1,3,2,2);
+		int tickLength = (int) utils.randomDelay(false,config.tickMin(),config.tickMax(),config.tickDeviation(),config.tickTarget());
 		log.debug("tick delay for {} ticks", tickLength);
 		return tickLength;
 	}
@@ -221,37 +219,47 @@ public class ElBankStanderPlugin extends Plugin
 
 	public ElBankStanderState getState()
 	{
-		if (timeout > 0)
-		{
-			return TIMEOUT;
-		}
 		if (utils.iterating)
 		{
 			return ITERATING;
 		}
+		if(player.getAnimation()!=-1){
+			return ANIMATING;
+		}
 		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM){
 			if(utils.inventoryContains(config.firstId()) && utils.inventoryContains(config.secondId())){
-				return utils.isBankOpen() ? CLOSE_BANK : USING_ITEM_ON_ITEM;
+				if(client.getWidget(270,0)!=null){
+					return USING_MENU;
+				} else {
+					return utils.isBankOpen() ? CLOSE_BANK : USING_ITEM_ON_ITEM;
+				}
+			}
+			else {
+				return utils.isBankOpen() ? WITHDRAW_ITEMS : FIND_BANK;
 			}
 		}
 		if(config.type() == ElBankStanderType.USE_ITEM){
 			if(utils.inventoryContains(config.firstId())) {
 				return utils.isBankOpen() ? CLOSE_BANK : USING_ITEM;
+			} else {
+				return utils.isBankOpen() ? WITHDRAW_ITEMS : FIND_BANK;
 			}
 		}
 		if(config.type() == ElBankStanderType.USE_TOOL_ON_ITEM){
 			if(utils.inventoryContains(config.toolId())){
 				if(utils.inventoryContains(config.firstId())){
-					if(client.getWidget(270,5)!=null && !client.getWidget(270,5).isHidden()){
+					if(client.getWidget(270,0)!=null){
 						return USING_MENU;
 					} else {
 						return utils.isBankOpen() ? CLOSE_BANK : USING_TOOL_ON_ITEM;
 					}
 				} else if(utils.getInventorySpace()==27) {
-					return WITHDRAW_ITEMS;
+					return utils.isBankOpen() ? WITHDRAW_ITEMS : FIND_BANK;
 				} else {
 					return utils.isBankOpen() ? DEPOSIT_EXCEPT : FIND_BANK;
 				}
+			} else {
+				return utils.isBankOpen() ? WITHDRAW_ITEMS : FIND_BANK;
 			}
 		}
 		return ANIMATING;
@@ -264,7 +272,6 @@ public class ElBankStanderPlugin extends Plugin
 		{
 			return;
 		}
-
 		player = client.getLocalPlayer();
 		if (client != null && player != null)
 		{
@@ -274,17 +281,14 @@ public class ElBankStanderPlugin extends Plugin
 				startBankStander = false;
 				return;
 			}
-			if(player.getAnimation()!=-1){
-				timeout = tickDelay();
+			if (timeout > 0)
+			{
+				timeout--;
 				return;
 			}
 			state = getState();
-			utils.sendGameMessage(state.toString());
 			switch (state)
 			{
-				case TIMEOUT:
-					timeout--;
-					break;
 				case ITERATING:
 					timeout = tickDelay();
 					break;
@@ -321,14 +325,14 @@ public class ElBankStanderPlugin extends Plugin
 					break;
 				case WITHDRAW_ITEMS:
 					handleWithdraw();
-					timeout = tickDelay();
+					timeout += 1+tickDelay();
 					break;
 				case USING_MENU:
 					handleMenu();
 					timeout = tickDelay();
 					break;
 				case CLOSE_BANK:
-					closeBank();
+					utils.closeBank();
 					break;
 			}
 		}
@@ -338,12 +342,6 @@ public class ElBankStanderPlugin extends Plugin
 	private void onMenuOptionClicked(MenuOptionClicked e)
 	{
 		log.info(e.toString());
-		if(targetMenu!=null){
-			e.consume();
-			client.invokeMenuAction(targetMenu.getOption(), targetMenu.getTarget(), targetMenu.getIdentifier(), targetMenu.getOpcode(),
-					targetMenu.getParam0(), targetMenu.getParam1());
-			targetMenu = null;
-		}
 	}
 
 	@Subscribe
@@ -365,113 +363,90 @@ public class ElBankStanderPlugin extends Plugin
 		if(targetObject!=null){
 			targetMenu = new MenuEntry("","",targetObject.getId(),4,targetObject.getLocalLocation().getSceneX(),targetObject.getLocalLocation().getSceneY(),false);
 			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+			clickBounds = targetObject.getClickbox().getBounds()!=null ? targetObject.getClickbox().getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+			utils.delayMouseClick(clickBounds,sleepDelay());
 		} else {
-			targetMenu=new MenuEntry("Bank","<col=ffff00>Banker",18847,11,0,0,false);
+			NPC targetNPC = new NPCQuery()
+					.idEquals(1634,3089,1633,1613)
+					.result(client)
+					.nearestTo(client.getLocalPlayer());
+			targetMenu=new MenuEntry("","",targetNPC.getIndex(),11,0,0,false);
 			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+			clickBounds = targetNPC.getConvexHull().getBounds()!=null ? targetNPC.getConvexHull().getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+			utils.delayMouseClick(clickBounds,sleepDelay());
 		}
-	}
-
-	private Point getRandomNullPoint()
-	{
-		if(client.getWidget(161,34)!=null){
-			Rectangle nullArea = client.getWidget(161,34).getBounds();
-			return new Point ((int)nullArea.getX()+utils.getRandomIntBetweenRange(0,nullArea.width), (int)nullArea.getY()+utils.getRandomIntBetweenRange(0,nullArea.height));
-		}
-
-		return new Point(client.getCanvasWidth()-utils.getRandomIntBetweenRange(0,2),client.getCanvasHeight()-utils.getRandomIntBetweenRange(0,2));
 	}
 
 	private void handleAll()
 	{
-		if (config.type() == ElBankStanderType.USE_ITEM)
-		{
-			Collection<Integer> inventoryItems = utils.getAllInventoryItemIDs();
-			utils.inventoryItemsInteract(inventoryItems, 33, false,true, 60, 350);
-			return;
-		}
-		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM)
-		{
-			if(client.getWidget(270,5)!= null && !client.getWidget(270,5).isHidden()){
-				targetMenu = new MenuEntry("Make", "", 1, 57, -1,17694734, false);
-				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-				return;
-			} else {
-				if(firstTime){
-					targetMenu = new MenuEntry("Use","Use",227,38,utils.getInventoryWidgetItem(227).getIndex(),9764864,false);
-					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-					firstTime=false;
-					return;
-				} else {
-					targetMenu = new MenuEntry("Use","<col=ff9040>Vial of water<col=ffffff> -> <col=ff9040>"+itemManager.getItemDefinition(config.firstId()).getName(),config.firstId(),31,utils.getInventoryWidgetItem(config.firstId()).getIndex(),9764864,false);
-					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-					return;
-				}
 
-			}
-		}
 	}
 
 	private void handleWithdraw()
 	{
-		if(utils.getBankItemWidget(config.firstId())==null){
-			return;
+		switch (config.type()) {
+			case USE_ITEM:
+				if(utils.inventoryEmpty()){
+					utils.withdrawAllItem(utils.getBankItemWidget(config.firstId()));
+				} else if(!utils.inventoryContains(config.firstId())){
+					utils.depositAll();
+				}
+				break;
+			case USE_TOOL_ON_ITEM:
+				if(!utils.inventoryContains(config.toolId())){
+					utils.withdrawItemAmount(config.toolId(),1);
+				} else {
+					utils.withdrawAllItem(utils.getBankItemWidget(config.firstId()));
+				}
+				break;
+			case USE_ITEM_ON_ITEM:
+				if(utils.inventoryContainsExcept(requiredIds)){
+					utils.depositAll();
+				} else if(!utils.inventoryContains(config.firstId())){
+					//utils.withdrawItemAmount(config.firstId(),14);
+					withdrawX(config.firstId());
+				} else {
+					//utils.withdrawItemAmount(config.secondId(),14);
+					withdrawX(config.secondId());
+				}
+				break;
 		}
-		Widget firstItemBankWidget = utils.getBankItemWidget(config.firstId());
-		if (config.type() == ElBankStanderType.USE_ITEM)
-		{
-			targetMenu = new MenuEntry("Withdraw-All", "<col=ff9040>"+itemManager.getItemDefinition(config.firstId()).getName()+"</col>",7,1007,firstItemBankWidget.getIndex(),786444,false);
-			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-		}
-		if(config.type() == ElBankStanderType.USE_TOOL_ON_ITEM)
-		{
-			utils.withdrawAllItem(firstItemBankWidget);
-			return;
-		}
-
-		if(utils.getBankItemWidget(config.secondId())==null){
-			return;
-		}
-		Widget secondItemBankWidget = utils.getBankItemWidget(config.secondId());
-		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM)
-		{
-			if(utils.inventoryEmpty()){
-				targetMenu = new MenuEntry("Withdraw-14", "<col=ff9040>"+itemManager.getItemDefinition(config.firstId()).getName()+"</col>",5,57,firstItemBankWidget.getIndex(),786444,false);
-				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-				return;
-			} else {
-				targetMenu = new MenuEntry("Withdraw-14", "<col=ff9040>"+itemManager.getItemDefinition(config.secondId()).getName()+"</col>",5,57,secondItemBankWidget.getIndex(),786444,false);
-				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-				return;
-			}
-
-		}
-	}
-
-	private void closeBank()
-	{
-		targetMenu = new MenuEntry("Close", "", 1, 57, 11, 786434, false);
-		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 	}
 
 	private void useItem(){
-
+		utils.inventoryItemsInteract(Collections.singleton(config.firstId()), config.inventoryOp(), false,true, 60, 350);
 	}
 
 	private void useItemOnItem(){
-
+		targetMenu = new MenuEntry("","",config.secondId(),31,utils.getInventoryWidgetItem(config.secondId()).getIndex(),9764864,false);
+		utils.setModifiedMenuEntry(targetMenu,config.firstId(),utils.getInventoryWidgetItem(config.firstId()).getIndex(),31);
+		clickBounds = utils.getInventoryWidgetItem(config.secondId()).getCanvasBounds()!=null ? utils.getInventoryWidgetItem(config.secondId()).getCanvasBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+		utils.delayMouseClick(clickBounds,sleepDelay());
 	}
 
 	private void useToolOnItem(){
 		targetMenu = new MenuEntry("","",config.firstId(),31,utils.getInventoryWidgetItem(config.firstId()).getIndex(),9764864,false);
 		utils.setModifiedMenuEntry(targetMenu,config.toolId(),utils.getInventoryWidgetItem(config.toolId()).getIndex(),31);
-		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		clickBounds = utils.getInventoryWidgetItem(config.firstId()).getCanvasBounds()!=null ? utils.getInventoryWidgetItem(config.firstId()).getCanvasBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+		utils.delayMouseClick(clickBounds,sleepDelay());
 	}
 
 	private void handleMenu(){
 		targetMenu = new MenuEntry("","",1,config.menuOp(),-1,config.menuParam1(),false);
 		utils.setMenuEntry(targetMenu);
-		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		clickBounds = client.getWidget(270,0).getBounds()!=null ? client.getWidget(270,0).getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+		utils.delayMouseClick(clickBounds,sleepDelay());
+	}
+
+	private void withdrawX(int ID){
+		if(client.getVarbitValue(3960)!=14){
+			utils.withdrawItemAmount(ID,14);
+			timeout+=3;
+		} else {
+			targetMenu = new MenuEntry("", "", (client.getVarbitValue(6590) == 3) ? 1 : 5, MenuOpcode.CC_OP.getId(), utils.getBankItemWidget(ID).getIndex(), 786444, false);
+			utils.setMenuEntry(targetMenu);
+			clickBounds = utils.getBankItemWidget(ID).getBounds()!=null ? utils.getBankItemWidget(ID).getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+			utils.delayMouseClick(clickBounds,sleepDelay());
+		}
 	}
 }
