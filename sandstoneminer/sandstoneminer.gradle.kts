@@ -23,13 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.0.2"
+version = "1.0.3"
 
 project.extra["PluginName"] = "El Sandstone"
 project.extra["PluginDescription"] = "Mines sandstone for you"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.5.0+")
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+")
     compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.13+")
 }
 

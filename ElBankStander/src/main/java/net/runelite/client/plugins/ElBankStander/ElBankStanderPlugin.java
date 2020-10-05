@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.bankstander;
+package net.runelite.client.plugins.ElBankStander;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
@@ -11,6 +11,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.queries.GameObjectQuery;
+import net.runelite.api.queries.NPCQuery;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.config.ConfigManager;
@@ -18,37 +19,46 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
+import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.ImageUtil;
 import net.runelite.http.api.ge.GrandExchangeClient;
 import net.runelite.http.api.osbuddy.OSBGrandExchangeClient;
 import okhttp3.OkHttpClient;
 import org.pf4j.Extension;
 
-import static net.runelite.client.plugins.bankstander.bankstanderState.*;
-import static net.runelite.client.plugins.botutils.Banks.ALL_BANKS;
+import static net.runelite.client.plugins.ElBankStander.ElBankStanderState.*;
 import static net.runelite.client.plugins.botutils.Banks.BANK_SET;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 @Extension
+@PluginDependency(BotUtils.class)
 @PluginDescriptor(
-	name = "Bank Stander",
+	name = "El Bank Stander",
 	description = "Performs various bank standing activities",
 	type = PluginType.MISCELLANEOUS
 )
 @Slf4j
-public class bankstanderPlugin extends Plugin
+public class ElBankStanderPlugin extends Plugin
 {
 
 	@Inject
 	private Client client;
+
+	@Inject
+	private ClientToolbar clientToolbar;
 
 	@Inject
 	private BotUtils utils;
@@ -63,12 +73,12 @@ public class bankstanderPlugin extends Plugin
 	private ItemManager itemManager;
 
 	@Inject
-	private bankstanderConfig config;
+	private ElBankStanderConfig config;
 
 	@Inject
-	private bankstanderOverlay overlay;
+	private ElBankStanderOverlay overlay;
 
-	bankstanderState state;
+	ElBankStanderState state;
 	MenuEntry targetMenu;
 	Instant botTimer;
 	Player player;
@@ -77,24 +87,15 @@ public class bankstanderPlugin extends Plugin
 	int timeout = 0;
 	long sleepLength;
 	boolean startBankStander;
+	private final Set<Integer> requiredIds = new HashSet<>();
+
+	private NavigationButton navButton;
 
 	// Provides our config
 	@Provides
-	bankstanderConfig provideConfig(ConfigManager configManager)
+	ElBankStanderConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(bankstanderConfig.class);
-	}
-
-	@Provides
-	OSBGrandExchangeClient provideOsbGrandExchangeClient(OkHttpClient okHttpClient)
-	{
-		return new OSBGrandExchangeClient(okHttpClient);
-	}
-
-	@Provides
-	GrandExchangeClient provideGrandExchangeClient(OkHttpClient okHttpClient)
-	{
-		return new GrandExchangeClient(okHttpClient);
+		return configManager.getConfig(ElBankStanderConfig.class);
 	}
 
 	@Override
@@ -102,6 +103,17 @@ public class bankstanderPlugin extends Plugin
 	{
 		// runs on plugin startup
 		log.info("Plugin started");
+		/*final ElBankStanderPanel panel = injector.getInstance(ElBankStanderPanel.class);
+
+		final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "el.png");
+
+		navButton = NavigationButton.builder()
+				.tooltip("El Bank Stander")
+				.icon(icon)
+				.panel(panel)
+				.build();
+
+		clientToolbar.addNavigation(navButton);*/
 
 		// example how to use config items
 	}
@@ -111,6 +123,7 @@ public class bankstanderPlugin extends Plugin
 	{
 		// runs on plugin shutdown
 		log.info("Plugin stopped");
+		//clientToolbar.removeNavigation(navButton);
 		resetVals();
 	}
 
@@ -127,7 +140,7 @@ public class bankstanderPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("bankstanderConfig"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElBankStanderConfig"))
 		{
 			return;
 		}
@@ -141,6 +154,9 @@ public class bankstanderPlugin extends Plugin
 				targetMenu = null;
 				botTimer = Instant.now();
 				overlayManager.add(overlay);
+				requiredIds.add(config.firstId());
+				requiredIds.add(config.toolId());
+				requiredIds.add(config.secondId());
 			}
 			else
 			{
@@ -162,13 +178,13 @@ public class bankstanderPlugin extends Plugin
 		return tickLength;
 	}
 
-	private bankstanderState getBankState()
+	private ElBankStanderState getBankState()
 	{
 		if (!utils.isBankOpen() && !utils.isDepositBoxOpen())
 		{
 			return FIND_BANK;
 		}
-		if(config.type() == bankstanderType.USE_ITEM){
+		if(config.type() == ElBankStanderType.USE_ITEM){
 			if(utils.inventoryContains(config.firstId())){
 				return CLOSE_BANK;
 			} else if (!utils.inventoryEmpty()){
@@ -178,7 +194,7 @@ public class bankstanderPlugin extends Plugin
 				return WITHDRAW_ITEMS;
 			}
 		}
-		if(config.type() == bankstanderType.USE_ITEM_ON_ITEM){
+		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM){
 			if(utils.inventoryContains(config.firstId()) && utils.inventoryContains(config.secondId())){
 				return CLOSE_BANK;
 			} else if(!utils.inventoryEmpty()){
@@ -189,7 +205,7 @@ public class bankstanderPlugin extends Plugin
 				return WITHDRAW_ITEMS;
 			}
 		}
-		if(config.type() == bankstanderType.USE_TOOL_ON_ITEM){
+		if(config.type() == ElBankStanderType.USE_TOOL_ON_ITEM){
 			if(utils.inventoryContains(config.toolId()) && utils.inventoryContains(config.firstId())){
 				return CLOSE_BANK;
 			} else if(!utils.inventoryEmpty()){
@@ -203,7 +219,7 @@ public class bankstanderPlugin extends Plugin
 		return BANK_NOT_FOUND;
 	}
 
-	public bankstanderState getState()
+	public ElBankStanderState getState()
 	{
 		if (timeout > 0)
 		{
@@ -213,26 +229,30 @@ public class bankstanderPlugin extends Plugin
 		{
 			return ITERATING;
 		}
-		if(config.type() == bankstanderType.USE_ITEM_ON_ITEM){
+		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM){
 			if(utils.inventoryContains(config.firstId()) && utils.inventoryContains(config.secondId())){
 				return utils.isBankOpen() ? CLOSE_BANK : USING_ITEM_ON_ITEM;
 			}
-		} else {
-			return getBankState();
 		}
-		if(config.type() == bankstanderType.USE_ITEM){
+		if(config.type() == ElBankStanderType.USE_ITEM){
 			if(utils.inventoryContains(config.firstId())) {
 				return utils.isBankOpen() ? CLOSE_BANK : USING_ITEM;
 			}
-		} else {
-			return getBankState();
 		}
-		if(config.type() == bankstanderType.USE_TOOL_ON_ITEM){
-			if(utils.inventoryContains(config.firstId()) && utils.inventoryContains(config.toolId())) {
-				return utils.isBankOpen() ? CLOSE_BANK : USING_TOOL_ON_ITEM;
+		if(config.type() == ElBankStanderType.USE_TOOL_ON_ITEM){
+			if(utils.inventoryContains(config.toolId())){
+				if(utils.inventoryContains(config.firstId())){
+					if(client.getWidget(270,5)!=null && !client.getWidget(270,5).isHidden()){
+						return USING_MENU;
+					} else {
+						return utils.isBankOpen() ? CLOSE_BANK : USING_TOOL_ON_ITEM;
+					}
+				} else if(utils.getInventorySpace()==27) {
+					return WITHDRAW_ITEMS;
+				} else {
+					return utils.isBankOpen() ? DEPOSIT_EXCEPT : FIND_BANK;
+				}
 			}
-		} else {
-			return getBankState();
 		}
 		return ANIMATING;
 	}
@@ -244,6 +264,7 @@ public class bankstanderPlugin extends Plugin
 		{
 			return;
 		}
+
 		player = client.getLocalPlayer();
 		if (client != null && player != null)
 		{
@@ -253,16 +274,12 @@ public class bankstanderPlugin extends Plugin
 				startBankStander = false;
 				return;
 			}
-			if(client.getVar(Varbits.WITHDRAW_X_AMOUNT)!=14){
-				utils.sendGameMessage("You should set your withdraw-X amount to 14 in the bank.");
-				startBankStander = false;
-				return;
-			}
 			if(player.getAnimation()!=-1){
 				timeout = tickDelay();
 				return;
 			}
 			state = getState();
+			utils.sendGameMessage(state.toString());
 			switch (state)
 			{
 				case TIMEOUT:
@@ -277,6 +294,10 @@ public class bankstanderPlugin extends Plugin
 					break;
 				case DEPOSIT_ALL:
 					utils.depositAll();
+					timeout = tickDelay();
+					break;
+				case DEPOSIT_EXCEPT:
+					utils.depositAllExcept(requiredIds);
 					timeout = tickDelay();
 					break;
 				case MISSING_ITEMS:
@@ -296,9 +317,14 @@ public class bankstanderPlugin extends Plugin
 					useToolOnItem();
 					timeout = tickDelay();
 				case ANIMATING:
+					timeout=1;
 					break;
 				case WITHDRAW_ITEMS:
 					handleWithdraw();
+					timeout = tickDelay();
+					break;
+				case USING_MENU:
+					handleMenu();
 					timeout = tickDelay();
 					break;
 				case CLOSE_BANK:
@@ -338,6 +364,11 @@ public class bankstanderPlugin extends Plugin
 				.nearestTo(client.getLocalPlayer());
 		if(targetObject!=null){
 			targetMenu = new MenuEntry("","",targetObject.getId(),4,targetObject.getLocalLocation().getSceneX(),targetObject.getLocalLocation().getSceneY(),false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		} else {
+			targetMenu=new MenuEntry("Bank","<col=ffff00>Banker",18847,11,0,0,false);
+			utils.setMenuEntry(targetMenu);
 			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 		}
 	}
@@ -354,13 +385,13 @@ public class bankstanderPlugin extends Plugin
 
 	private void handleAll()
 	{
-		if (config.type() == bankstanderType.USE_ITEM)
+		if (config.type() == ElBankStanderType.USE_ITEM)
 		{
 			Collection<Integer> inventoryItems = utils.getAllInventoryItemIDs();
 			utils.inventoryItemsInteract(inventoryItems, 33, false,true, 60, 350);
 			return;
 		}
-		if(config.type() == bankstanderType.USE_ITEM_ON_ITEM)
+		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM)
 		{
 			if(client.getWidget(270,5)!= null && !client.getWidget(270,5).isHidden()){
 				targetMenu = new MenuEntry("Make", "", 1, 57, -1,17694734, false);
@@ -388,17 +419,22 @@ public class bankstanderPlugin extends Plugin
 			return;
 		}
 		Widget firstItemBankWidget = utils.getBankItemWidget(config.firstId());
-		if (config.type() == bankstanderType.USE_ITEM)
+		if (config.type() == ElBankStanderType.USE_ITEM)
 		{
 			targetMenu = new MenuEntry("Withdraw-All", "<col=ff9040>"+itemManager.getItemDefinition(config.firstId()).getName()+"</col>",7,1007,firstItemBankWidget.getIndex(),786444,false);
 			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		}
+		if(config.type() == ElBankStanderType.USE_TOOL_ON_ITEM)
+		{
+			utils.withdrawAllItem(firstItemBankWidget);
+			return;
 		}
 
 		if(utils.getBankItemWidget(config.secondId())==null){
 			return;
 		}
 		Widget secondItemBankWidget = utils.getBankItemWidget(config.secondId());
-		if(config.type() == bankstanderType.USE_ITEM_ON_ITEM)
+		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM)
 		{
 			if(utils.inventoryEmpty()){
 				targetMenu = new MenuEntry("Withdraw-14", "<col=ff9040>"+itemManager.getItemDefinition(config.firstId()).getName()+"</col>",5,57,firstItemBankWidget.getIndex(),786444,false);
@@ -428,6 +464,14 @@ public class bankstanderPlugin extends Plugin
 	}
 
 	private void useToolOnItem(){
-		
+		targetMenu = new MenuEntry("","",config.firstId(),31,utils.getInventoryWidgetItem(config.firstId()).getIndex(),9764864,false);
+		utils.setModifiedMenuEntry(targetMenu,config.toolId(),utils.getInventoryWidgetItem(config.toolId()).getIndex(),31);
+		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+	}
+
+	private void handleMenu(){
+		targetMenu = new MenuEntry("","",1,config.menuOp(),-1,config.menuParam1(),false);
+		utils.setMenuEntry(targetMenu);
+		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 	}
 }

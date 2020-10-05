@@ -1,6 +1,6 @@
-package net.runelite.client.plugins.bankstander;
+package net.runelite.client.plugins.ElBankStander;
 
-public enum bankstanderState
+public enum ElBankStanderState
 {
 	ANIMATING,
 	BANK_NOT_FOUND,
@@ -14,5 +14,6 @@ public enum bankstanderState
 	WITHDRAW_ITEMS,
 	USING_ITEM_ON_ITEM,
 	USING_ITEM,
-	USING_TOOL_ON_ITEM
+	USING_TOOL_ON_ITEM,
+	USING_MENU;
 }

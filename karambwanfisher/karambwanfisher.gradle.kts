@@ -23,14 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.3"
+version = "0.0.4"
 
 project.extra["PluginName"] = "El Karambwans" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Fishes karambwans" // This is the description that is used in the external plugin manager panel
 
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.5.0+");
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
     compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.13+")
 }
 

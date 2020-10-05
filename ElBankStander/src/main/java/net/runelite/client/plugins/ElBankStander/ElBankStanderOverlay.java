@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.bankstander;
+package net.runelite.client.plugins.ElBankStander;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -23,18 +23,18 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
 @Slf4j
 @Singleton
-class bankstanderOverlay extends OverlayPanel
+class ElBankStanderOverlay extends OverlayPanel
 {
     private final Client client;
-    private final bankstanderPlugin plugin;
-    private final bankstanderConfig config;
+    private final ElBankStanderPlugin plugin;
+    private final ElBankStanderConfig config;
 
     String timeFormat;
     String localstate = "Starting";
     private String infoStatus = "Starting...";
 
     @Inject
-    private bankstanderOverlay(final Client client, final bankstanderPlugin plugin, final bankstanderConfig config)
+    private ElBankStanderOverlay(final Client client, final ElBankStanderPlugin plugin, final ElBankStanderConfig config)
     {
         super(plugin);
         setPosition(OverlayPosition.DYNAMIC);

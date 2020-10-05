@@ -23,14 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.6"
+version = "0.0.7"
 
 project.extra["PluginName"] = "El Barbarian" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Fishes and Cooks in Barbarian Village" // This is the description that is used in the external plugin manager panel
 
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.6.1+");
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
     compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.13+")
 }
 

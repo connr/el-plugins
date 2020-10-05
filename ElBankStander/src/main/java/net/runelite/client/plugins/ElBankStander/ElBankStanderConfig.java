@@ -22,22 +22,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.bankstander;
+package net.runelite.client.plugins.ElBankStander;
 
-import net.runelite.client.config.Button;
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.*;
 
-@ConfigGroup("bankstanderConfig")
+@ConfigGroup("ElBankStanderConfig")
 
-public interface bankstanderConfig extends Config
+public interface ElBankStanderConfig extends Config
 {
+	@ConfigTitleSection(
+			keyName = "instructionsTitle",
+			name = "Instructions",
+			description = "",
+			position = 0
+	)
+	default Title instructionsTitle()
+	{
+		return new Title();
+	}
 	@ConfigItem(
 			keyName = "instructions",
 			name = "",
 			description = "Instructions.",
-			position = 0
+			position = 1,
+			titleSection = "instructionsTitle"
 	)
 	default String instructions()
 	{
@@ -45,22 +53,35 @@ public interface bankstanderConfig extends Config
 				"Then enter the item IDs you would like to use for this activity.";
 	}
 
+	@ConfigTitleSection(
+			keyName = "generalTitle",
+			name = "General Config",
+			description = "",
+			position = 10
+	)
+	default Title generalTitle()
+	{
+		return new Title();
+	}
+
 	@ConfigItem(
 			keyName = "type",
-			name = "",
+			name = "Type",
 			description = "Select what activity you would like to do.",
-			position = 1
+			position = 11,
+			titleSection = "generalTitle"
 	)
-	default bankstanderType type()
+	default ElBankStanderType type()
 	{
-		return bankstanderType.USE_ITEM;
+		return ElBankStanderType.USE_ITEM;
 	}
 
 	@ConfigItem(
 			keyName = "firstId",
 			name = "First Item ID",
 			description = "Enter the Id of the first item you will use.",
-			position = 2
+			position = 12,
+			titleSection = "generalTitle"
 	)
 	default int firstId() { return 0; }
 
@@ -68,10 +89,11 @@ public interface bankstanderConfig extends Config
 			keyName = "secondId",
 			name = "Second Item ID",
 			description = "Enter the Id of the second item you will use.",
-			position = 3,
+			position = 13,
 			hidden = true,
 			unhide = "type",
-			unhideValue = "USE_ITEM_ON_ITEM"
+			unhideValue = "USE_ITEM_ON_ITEM",
+			titleSection = "generalTitle"
 	)
 	default int secondId()
 	{
@@ -82,12 +104,48 @@ public interface bankstanderConfig extends Config
 			keyName = "toolId",
 			name = "Tool ID",
 			description = "Enter the Id of the tool you will be using.",
-			position = 4,
+			position = 14,
 			hidden = true,
 			unhide = "type",
-			unhideValue = "USE_TOOL_ON_ITEM"
+			unhideValue = "USE_TOOL_ON_ITEM",
+			titleSection = "generalTitle"
 	)
 	default int toolId()
+	{
+		return 0;
+	}
+
+	@ConfigTitleSection(
+			keyName = "menuTitle",
+			name = "Menu Config",
+			description = "",
+			position = 20
+	)
+	default Title menuTitle()
+	{
+		return new Title();
+	}
+
+	@ConfigItem(
+			keyName = "menuOp",
+			name = "Menu OpCode",
+			description = "Enter the menu opcode here.",
+			position = 21,
+			titleSection = "menuTitle"
+	)
+	default int menuOp()
+	{
+		return 0;
+	}
+
+	@ConfigItem(
+			keyName = "menuParam1",
+			name = "Menu Param1",
+			description = "Enter the menu param1 here.",
+			position = 22,
+			titleSection = "menuTitle"
+	)
+	default int menuParam1()
 	{
 		return 0;
 	}
@@ -96,14 +154,10 @@ public interface bankstanderConfig extends Config
 			keyName = "startButton",
 			name = "Start/Stop",
 			description = "Test button that changes variable value",
-			position = 150
+			position = 100
 	)
 	default Button startButton()
 	{
 		return new Button();
 	}
-
-
-
-
 }

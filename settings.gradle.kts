@@ -35,6 +35,7 @@ include(":karambwanfisher")
 include(":cooker")
 include(":barbarianfisher")
 include(":tickcooker")
+include(":ElBankStander")
 
 for (project in rootProject.children) {
     project.apply {
