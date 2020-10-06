@@ -133,6 +133,7 @@ public class ElBankStanderPlugin extends Plugin
 		botTimer = null;
 		startBankStander = false;
 		firstTime=true;
+		requiredIds.clear();
 	}
 
 	@Subscribe
@@ -152,9 +153,20 @@ public class ElBankStanderPlugin extends Plugin
 				targetMenu = null;
 				botTimer = Instant.now();
 				overlayManager.add(overlay);
-				requiredIds.add(config.firstId());
-				requiredIds.add(config.toolId());
-				requiredIds.add(config.secondId());
+				requiredIds.clear();
+				switch (config.type()){
+					case USE_ITEM:
+						requiredIds.add(config.firstId());
+						break;
+					case USE_ITEM_ON_ITEM:
+						requiredIds.add(config.firstId());
+						requiredIds.add(config.secondId());
+						break;
+					case USE_TOOL_ON_ITEM:
+						requiredIds.add(config.firstId());
+						requiredIds.add(config.toolId());
+						break;
+				}
 			}
 			else
 			{
