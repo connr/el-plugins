@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.1.1"
+version = "0.1.4"
 
 project.extra["PluginName"] = "El Bank Stander" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Performs various bank standing activities." // This is the description that is used in the external plugin manager panel

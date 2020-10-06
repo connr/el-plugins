@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.2.4"
+version = "1.2.5"
 
 project.extra["PluginName"] = "El Bloods" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Crafts blood runes" // This is the description that is used in the external plugin manager panel

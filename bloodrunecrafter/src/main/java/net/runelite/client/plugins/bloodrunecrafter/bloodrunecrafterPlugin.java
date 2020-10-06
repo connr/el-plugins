@@ -250,12 +250,6 @@ public class bloodrunecrafterPlugin extends Plugin
     private void handleDropExcept()
     {
         if (config.craftBloods()){
-        	if(firstTimeUsingChisel){
-				targetMenu = new MenuEntry("Use", "Use", 1755, 38,
-						utils.getInventoryWidgetItem(1755).getIndex(), 9764864, false);
-				utils.setMenuEntry(targetMenu);
-				utils.delayMouseClick(utils.getInventoryWidgetItem(1755).getCanvasBounds(), 0);
-			}
 			utils.inventoryItemsCombine(Collections.singleton(13446), 1755,38, false,true, config.sleepMin(), config.sleepMax());
 		}
     }
@@ -477,7 +471,11 @@ public class bloodrunecrafterPlugin extends Plugin
 				}
 				break;
 			case WALK_TO_ESSENCE:
-				interactObject();
+				if(utils.inventoryContains(13446)){
+					handleDropExcept();
+				} else {
+					interactObject();
+				}
 				break;
 			case MOVING:
 				if (player.getWorldArea().intersectsWith(START_CHISELING_AREA)){ //running back from dark altar

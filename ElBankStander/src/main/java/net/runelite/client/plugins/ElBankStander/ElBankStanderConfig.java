@@ -116,6 +116,29 @@ public interface ElBankStanderConfig extends Config
 	}
 
 	@ConfigTitleSection(
+			keyName = "bankTitle",
+			name = "Bank Config",
+			description = "",
+			position = 18
+	)
+	default Title bankTitle()
+	{
+		return new Title();
+	}
+
+	@ConfigItem(
+			keyName = "grandExchange",
+			name = "Grand Exchange",
+			description = "Tick this for grand exchange banking.",
+			position = 19,
+			titleSection = "bankTitle"
+	)
+	default boolean grandExchange()
+	{
+		return false;
+	}
+
+	@ConfigTitleSection(
 			keyName = "menuTitle",
 			name = "Menu Config",
 			description = "",

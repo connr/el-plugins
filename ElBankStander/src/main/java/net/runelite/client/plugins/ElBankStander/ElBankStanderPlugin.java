@@ -368,24 +368,32 @@ public class ElBankStanderPlugin extends Plugin
 
 	private void openNearestBank()
 	{
-		GameObject targetObject = new GameObjectQuery()
-				.idEquals(BANK_SET)
-				.result(client)
-				.nearestTo(client.getLocalPlayer());
-		if(targetObject!=null){
-			targetMenu = new MenuEntry("","",targetObject.getId(),4,targetObject.getLocalLocation().getSceneX(),targetObject.getLocalLocation().getSceneY(),false);
-			utils.setMenuEntry(targetMenu);
-			clickBounds = targetObject.getClickbox().getBounds()!=null ? targetObject.getClickbox().getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
-			utils.delayMouseClick(clickBounds,sleepDelay());
-		} else {
+		if(config.grandExchange()){
 			NPC targetNPC = new NPCQuery()
 					.idEquals(1634,3089,1633,1613)
 					.result(client)
 					.nearestTo(client.getLocalPlayer());
-			targetMenu=new MenuEntry("","",targetNPC.getIndex(),11,0,0,false);
-			utils.setMenuEntry(targetMenu);
-			clickBounds = targetNPC.getConvexHull().getBounds()!=null ? targetNPC.getConvexHull().getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
-			utils.delayMouseClick(clickBounds,sleepDelay());
+			if(targetNPC!=null){
+				targetMenu=new MenuEntry("","",targetNPC.getIndex(),11,0,0,false);
+				utils.setMenuEntry(targetMenu);
+				clickBounds = targetNPC.getConvexHull().getBounds()!=null ? targetNPC.getConvexHull().getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+				utils.delayMouseClick(clickBounds,sleepDelay());
+			} else {
+				utils.sendGameMessage("G.E Banker is null.");
+			}
+		} else {
+			GameObject targetObject = new GameObjectQuery()
+					.idEquals(BANK_SET)
+					.result(client)
+					.nearestTo(client.getLocalPlayer());
+			if(targetObject!=null) {
+				targetMenu = new MenuEntry("", "", targetObject.getId(), 4, targetObject.getLocalLocation().getSceneX(), targetObject.getLocalLocation().getSceneY(), false);
+				utils.setMenuEntry(targetMenu);
+				clickBounds = targetObject.getClickbox().getBounds() != null ? targetObject.getClickbox().getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+				utils.delayMouseClick(clickBounds, sleepDelay());
+			} else {
+				utils.sendGameMessage("Bank Booth is null.");
+			}
 		}
 	}
 
