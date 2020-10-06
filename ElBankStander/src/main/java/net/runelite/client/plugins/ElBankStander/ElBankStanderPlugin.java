@@ -333,7 +333,7 @@ public class ElBankStanderPlugin extends Plugin
 					useToolOnItem();
 					timeout = tickDelay();
 				case ANIMATING:
-					timeout=1;
+					timeout=1+tickDelay();
 					break;
 				case WITHDRAW_ITEMS:
 					handleWithdraw();
