@@ -57,7 +57,12 @@ class ElBankStanderOverlay extends OverlayPanel
         timeFormat = (duration.toHours() < 1) ? "mm:ss" : "HH:mm:ss";
         tableComponent.addRow("Time:", formatDuration(duration.toMillis(), timeFormat));
         tableComponent.addRow("Mode:", config.type().toString());
-        tableComponent.addRow("Status:", localstate);
+        if(plugin.timeout>=0 && plugin.state==ElBankStanderState.TIMEOUT){
+            tableComponent.addRow("Status:", localstate + "(" + (plugin.timeout+1) + ")");
+        } else {
+            tableComponent.addRow("Status:", localstate);
+        }
+
 
 
         if (!tableComponent.isEmpty())

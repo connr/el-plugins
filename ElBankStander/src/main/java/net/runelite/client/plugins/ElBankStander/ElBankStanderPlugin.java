@@ -167,6 +167,15 @@ public class ElBankStanderPlugin extends Plugin
 						requiredIds.add(config.toolId());
 						break;
 				}
+				if(config.placeholder1Id()!=0){
+					requiredIds.add(config.placeholder1Id());
+				}
+				if(config.placeholder2Id()!=0){
+					requiredIds.add(config.placeholder2Id());
+				}
+				if(config.placeholder3Id()!=0){
+					requiredIds.add(config.placeholder3Id());
+				}
 			}
 			else
 			{
@@ -238,6 +247,10 @@ public class ElBankStanderPlugin extends Plugin
 		if(player.getAnimation()!=-1){
 			return ANIMATING;
 		}
+		if (timeout > 0)
+		{
+			return TIMEOUT;
+		}
 		if(config.type() == ElBankStanderType.USE_ITEM_ON_ITEM){
 			if(utils.inventoryContains(config.firstId()) && utils.inventoryContains(config.secondId())){
 				if(client.getWidget(270,0)!=null){
@@ -258,14 +271,14 @@ public class ElBankStanderPlugin extends Plugin
 			}
 		}
 		if(config.type() == ElBankStanderType.USE_TOOL_ON_ITEM){
-			if(utils.inventoryContains(config.toolId())){
-				if(utils.inventoryContains(config.firstId())){
+			if(utils.inventoryContains(config.toolId())){ //contains tool
+				if(utils.inventoryContains(config.firstId())){ //contains firstid
 					if(client.getWidget(270,0)!=null){
 						return USING_MENU;
 					} else {
 						return utils.isBankOpen() ? CLOSE_BANK : USING_TOOL_ON_ITEM;
 					}
-				} else if(utils.getInventorySpace()==27) {
+				} else if(utils.getInventorySpace()==29-requiredIds.size()) {
 					return utils.isBankOpen() ? WITHDRAW_ITEMS : FIND_BANK;
 				} else {
 					return utils.isBankOpen() ? DEPOSIT_EXCEPT : FIND_BANK;
@@ -293,14 +306,12 @@ public class ElBankStanderPlugin extends Plugin
 				startBankStander = false;
 				return;
 			}
-			if (timeout > 0)
-			{
-				timeout--;
-				return;
-			}
 			state = getState();
 			switch (state)
 			{
+				case TIMEOUT:
+					timeout--;
+					break;
 				case ITERATING:
 					timeout = tickDelay();
 					break;

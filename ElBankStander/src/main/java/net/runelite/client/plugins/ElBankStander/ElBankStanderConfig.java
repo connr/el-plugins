@@ -115,6 +115,42 @@ public interface ElBankStanderConfig extends Config
 		return 0;
 	}
 
+	@ConfigItem(
+			keyName = "placeholder1Id",
+			name = "Placeholder ID",
+			description = "Enter the Id of anything additional you will be using.",
+			position = 15,
+			titleSection = "generalTitle"
+	)
+	default int placeholder1Id()
+	{
+		return 0;
+	}
+
+	@ConfigItem(
+			keyName = "placeholder2Id",
+			name = "Placeholder ID",
+			description = "Enter the Id of anything additional you will be using.",
+			position = 15,
+			titleSection = "generalTitle"
+	)
+	default int placeholder2Id()
+	{
+		return 0;
+	}
+
+	@ConfigItem(
+			keyName = "placeholder3Id",
+			name = "Placeholder ID",
+			description = "Enter the Id of anything additional you will be using.",
+			position = 15,
+			titleSection = "generalTitle"
+	)
+	default int placeholder3Id()
+	{
+		return 0;
+	}
+
 	@ConfigTitleSection(
 			keyName = "bankTitle",
 			name = "Bank Config",
