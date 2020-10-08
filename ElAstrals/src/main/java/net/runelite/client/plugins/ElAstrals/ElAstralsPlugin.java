@@ -79,7 +79,7 @@ public class ElAstralsPlugin extends Plugin
 	boolean firstClickOnAltar;
 
 	WorldArea LUNAR_BANK = new WorldArea(new WorldPoint(2096,3916,0), new WorldPoint(2101,3920,0));
-	WorldArea FIRST_CLICK_AREA = new WorldArea(new WorldPoint(2121,3867,0), new WorldPoint(2132,3879,0));
+	WorldArea FIRST_CLICK_AREA = new WorldArea(new WorldPoint(2123,3867,0), new WorldPoint(2132,3879,0));
 
 	WorldPoint FIRST_CLICK_POINT = new WorldPoint(2126,3873,0);
 
@@ -209,6 +209,9 @@ public class ElAstralsPlugin extends Plugin
 			case CLICKING_ALTAR:
 				if(client.getLocalPlayer().getWorldArea().intersectsWith(LUNAR_BANK)){
 					utils.walk(FIRST_CLICK_POINT,2,sleepDelay());
+				} else if(client.getLocalPlayer().getWorldArea().intersectsWith(FIRST_CLICK_AREA)){
+					clickAstralAltar();
+					runecraftProgress++;
 				}
 				tickTimer=tickDelay();
 				break;
@@ -336,11 +339,21 @@ public class ElAstralsPlugin extends Plugin
 
 	private void openLunarBank()
 	{
-		targetObject = utils.findNearestGameObject(16700);
-		firstClickOnAltar=false;
-		if(targetObject!=null){
-			targetMenu = new MenuEntry("Bank", "<col=ffff>Bank booth", targetObject.getId(), 4, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+		if(config.dreamMentor()){
+			targetObject = utils.findNearestGameObject(16700);
+			firstClickOnAltar=false;
+			if(targetObject!=null){
+				targetMenu = new MenuEntry("Bank", "<col=ffff>Bank booth", targetObject.getId(), 4, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+			}
+		} else {
+			for(GameObject gameObject : utils.getGameObjects(16700)){
+				if(gameObject.getWorldLocation().equals(new WorldPoint(2098,3920,0))){
+					targetObject=gameObject;
+					targetMenu = new MenuEntry("Bank", "<col=ffff>Bank booth", targetObject.getId(), 4, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+				}
+			}
 		}
 	}
 
@@ -482,15 +495,14 @@ public class ElAstralsPlugin extends Plugin
 					runecraftProgress++;
 					return EMPTY_MEDIUM;
 				case 11:
-				case 14:
-					clickAstralAltar();
-					runecraftProgress++;
-					return CLICKING_ALTAR;
-				case 12:
 					targetMenu = new MenuEntry("Empty", "<col=ff9040>Large pouch</col>", 5512, 34, utils.getInventoryWidgetItem(5512).getIndex(), 9764864, false);
 					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 					runecraftProgress=14;
 					return EMPTY_LARGE;
+				case 14:
+					clickAstralAltar();
+					runecraftProgress++;
+					return CLICKING_ALTAR;
 			}
 			return UNKNOWN;
 		}

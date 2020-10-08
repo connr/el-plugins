@@ -86,6 +86,15 @@ public interface ElAstralsConfig extends Config
 	default boolean daeyalt() { return false; }
 
 	@ConfigItem(
+			keyName = "dreamMentor",
+			name = "Dream Mentor Completed",
+			description = "Tick this if you have Dream Mentor Completed.",
+			position = 3,
+			titleSection = "generalTitle"
+	)
+	default boolean dreamMentor() { return false; }
+
+	@ConfigItem(
 			keyName = "noStams",
 			name = "No Staminas",
 			description = "Tick this if you don't have any stamina potions.",
@@ -103,7 +112,7 @@ public interface ElAstralsConfig extends Config
 			hide = "noStams",
 			titleSection = "generalTitle"
 	)
-	default int minEnergy() { return 35; }
+	default int minEnergy() { return 50; }
 
 	@ConfigItem(
 			keyName = "minHealth",
