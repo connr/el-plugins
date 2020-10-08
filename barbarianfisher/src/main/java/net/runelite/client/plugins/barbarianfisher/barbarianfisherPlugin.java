@@ -174,7 +174,7 @@ public class barbarianfisherPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("karambwanfisher"))
+		if (!event.getGroup().equals("barbarianfisher"))
 		{
 			return;
 		}
