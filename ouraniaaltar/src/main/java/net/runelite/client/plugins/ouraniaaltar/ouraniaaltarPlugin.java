@@ -303,7 +303,7 @@ public class ouraniaaltarPlugin extends Plugin
 		if(player.getAnimation()==-1){
 			craftingTimer=-1;
 		}
-		if(checkHitpoints()<40){
+		if(checkHitpoints()<config.pauseHealth()){
 			return PLAYER_HP_LOW;
 		}
 		if(tickTimer>0)

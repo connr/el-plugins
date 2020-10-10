@@ -128,6 +128,14 @@ public interface ouraniaaltarConfig extends Config
 	default int minHealth() { return 65; }
 
 	@ConfigItem(
+			keyName = "pauseHealth",
+			name = "Pause Health",
+			description = "Health below which the plugin will pause.",
+			position = 17
+	)
+	default int pauseHealth() { return 40; }
+
+	@ConfigItem(
 			keyName = "enableUI",
 			name = "Enable UI",
 			description = "Enable to turn on in game UI",
