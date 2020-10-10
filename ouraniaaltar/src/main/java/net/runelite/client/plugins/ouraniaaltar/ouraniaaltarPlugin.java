@@ -132,7 +132,9 @@ public class ouraniaaltarPlugin extends Plugin
 		{
 			return;
 		}
-		startOuraniaAltar = false;
+		if(startOuraniaAltar){
+			startOuraniaAltar = false;
+		}
 	}
 
 	private void setValues()

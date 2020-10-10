@@ -53,7 +53,11 @@ class ouraniaaltarOverlay extends OverlayPanel
         Duration duration = Duration.between(plugin.botTimer, Instant.now());
         timeFormat = (duration.toHours() < 1) ? "mm:ss" : "HH:mm:ss";
         tableComponent.addRow("Time:", formatDuration(duration.toMillis(), timeFormat));
-        tableComponent.addRow("Status:", plugin.status.toString());
+        if(plugin.status!=null){
+            tableComponent.addRow("Status:", "Starting...");
+        } else {
+            tableComponent.addRow("Status:", plugin.status.toString());
+        }
         tableComponent.addRow("Progress: ", String.valueOf(plugin.runecraftProgress));
         tableComponent.addRow("Essence: ", plugin.currentEss + " (-" + (plugin.startEss - plugin.currentEss) + ")");
 
