@@ -124,6 +124,14 @@ public interface ElAstralsConfig extends Config
 	default int minHealth() { return 65; }
 
 	@ConfigItem(
+			keyName = "pauseHealth",
+			name = "Pause Health",
+			description = "Health below which the plugin will pause.",
+			position = 17
+	)
+	default int pauseHealth() { return 40; }
+
+	@ConfigItem(
 			keyName = "foodType",
 			name = "Food ID",
 			description = "ID of food to eat",

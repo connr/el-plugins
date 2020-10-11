@@ -285,7 +285,7 @@ public class ElAstralsPlugin extends Plugin
 			}
 
 		}
-		if(checkHitpoints()<40){
+		if(checkHitpoints()<config.pauseHealth()){
 			return PLAYER_HP_LOW;
 		}
 		if(tickTimer>0)
