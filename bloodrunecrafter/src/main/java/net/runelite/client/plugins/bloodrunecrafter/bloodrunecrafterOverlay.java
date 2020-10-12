@@ -62,7 +62,7 @@ class bloodrunecrafterOverlay extends OverlayPanel
 			}
 		}
 		tableComponent.addRow("Status:", infoStatus);
-		if(config.craftBloods()){
+		if(config.mode().equals(bloodrunecrafterType.BLOOD_RUNES)){
 			tableComponent.addRow("Crafting Bloods:", "True");
 		}
 

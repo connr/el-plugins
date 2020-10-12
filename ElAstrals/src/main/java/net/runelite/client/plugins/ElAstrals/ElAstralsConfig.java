@@ -196,7 +196,7 @@ public interface ElAstralsConfig extends Config
 	)
 	default int sleepTarget()
 	{
-		return 10;
+		return 100;
 	}
 
 	@ConfigItem(

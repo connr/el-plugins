@@ -248,15 +248,15 @@ public interface bloodrunecrafterConfiguration extends Config
 	}
 
 	@ConfigItem(
-			keyName = "craftBloods",
-			name = "Craft Blood Runes",
-			description = "Crafts blood runes.",
+			keyName = "mode",
+			name = "Select Mode",
+			description = "Select which mode you would like to run.",
 			position = 71,
 			titleSection = "bloodrunecrafterTitle"
 	)
-	default boolean craftBloods()
+	default bloodrunecrafterType mode()
 	{
-		return true;
+		return bloodrunecrafterType.BLOOD_RUNES;
 	}
 
 	@ConfigItem(
