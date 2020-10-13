@@ -105,7 +105,7 @@ public class bloodrunecrafterPlugin extends Plugin
 	WorldArea START_CHISELING_AREA = new WorldArea(new WorldPoint(1720, 3874, 0), new WorldPoint(1734, 3881, 0));
 
 
-	WorldArea FIRST_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1753,3894,0),new WorldPoint(1757,3899,0));
+	WorldArea FIRST_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1753,3894,0),new WorldPoint(1758,3899,0));
 	WorldPoint FIRST_CLICK_SOUL_ALTAR_POINT = new WorldPoint(1755,3896,0);
 
 	WorldArea SECOND_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1792,3890,0),new WorldPoint(1797,3895,0));

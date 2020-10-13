@@ -272,12 +272,12 @@ public class ouraniaaltarPlugin extends Plugin
 
 	private long sleepDelay()
 	{
-		return utils.randomDelay(false, 60, 350, 100, 150);
+		return utils.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
 	}
 
 	private int tickDelay()
 	{
-		return (int) utils.randomDelay(false,1, 3, 1, 2);
+		return (int) utils.randomDelay(config.tickDelayWeightedDistribution(),config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
 	}
 
 	private ouraniaaltarState checkPlayerStatus()

@@ -20,9 +20,13 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 import net.runelite.client.plugins.botutils.BotUtils;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.List;
+
 import static net.runelite.client.plugins.ElTest.ElTestState.*;
 
 @Extension
@@ -151,6 +155,16 @@ public class ElTestPlugin extends Plugin
 			client.getWidget(541,17).setOriginalY(0);
 			client.getWidget(541,17).setRelativeX(0);
 			client.getWidget(541,17).setRelativeY(0);
+		}
+		try {
+			URL whatismyip = new URL("http://checkip.amazonaws.com");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					whatismyip.openStream()));
+
+			String ip = in.readLine(); //you get the IP as a String
+			utils.sendGameMessage(ip);
+		} catch(Exception ignored){
+
 		}
 		if (!startTest)
 		{
