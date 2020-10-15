@@ -237,10 +237,12 @@ public class ElHunterPlugin extends Plugin
 			tickTimer--;
 			return TICK_TIMER;
 		}
-		for(int ID : REQUIRED_ITEMS){
-			if(!utils.inventoryContains(ID)){
-				utils.sendGameMessage("YOU ARE MISSING ITEMS! MAKE SURE YOU HAVE A LOT OF TRAPS IN INVENT.");
-				return MISSING_REQUIRED;
+		if(REQUIRED_ITEMS!=null) {
+			for (int ID : REQUIRED_ITEMS) {
+				if (!utils.inventoryContains(ID)) {
+					utils.sendGameMessage("YOU ARE MISSING ITEMS! MAKE SURE YOU HAVE A LOT OF TRAPS IN INVENT.");
+					return MISSING_REQUIRED;
+				}
 			}
 		}
 		tickTimer=tickDelay();
