@@ -120,6 +120,8 @@ public class bloodrunecrafterPlugin extends Plugin
 	private final Set<Integer> itemIds = new HashSet<>();
 	private final Set<Integer> objectIds = new HashSet<>();
 	private final int requiredIds = 1755;
+	int startBloodRunes;
+	int currentBloodRunes;
 
 
 	@Provides
@@ -174,6 +176,14 @@ public class bloodrunecrafterPlugin extends Plugin
 				botTimer = Instant.now();
 				setLocation();
 				overlayManager.add(overlay);
+				if(utils.inventoryContains(565)){
+					startBloodRunes=utils.getInventoryItemCount(565,true);
+					currentBloodRunes=startBloodRunes;
+				} else {
+					startBloodRunes=0;
+					currentBloodRunes=0;
+				}
+
 			}
 			else
 			{
@@ -491,6 +501,7 @@ public class bloodrunecrafterPlugin extends Plugin
 				}
 				break;
 			case BLOOD_OBSTACLE_2:
+				currentBloodRunes=utils.getInventoryItemCount(565,true);
 				targetGroundObject = utils.findNearestGroundObject(27984);
 				if(targetGroundObject!=null){
 					targetMenu = new MenuEntry("Climb", "<col=ffff>Rocks", targetGroundObject.getId(), 3,

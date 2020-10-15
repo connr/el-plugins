@@ -62,8 +62,16 @@ class bloodrunecrafterOverlay extends OverlayPanel
 			}
 		}
 		tableComponent.addRow("Status:", infoStatus);
-		if(config.mode().equals(bloodrunecrafterType.BLOOD_RUNES)){
-			tableComponent.addRow("Crafting Bloods:", "True");
+		switch(config.mode()){
+			case BLOOD_RUNES:
+				tableComponent.addRow("Mode:", "Blood Runes");
+				tableComponent.addRow("Crafted:", plugin.currentBloodRunes-plugin.startBloodRunes+" Bloods");
+				break;
+			case SOUL_RUNES:
+				tableComponent.addRow("Mode:", "Soul Runes");
+				break;
+			case MINE_ONLY:
+				tableComponent.addRow("Mode:", "Mining Only");
 		}
 
 		TableComponent tableDelayComponent = new TableComponent();
