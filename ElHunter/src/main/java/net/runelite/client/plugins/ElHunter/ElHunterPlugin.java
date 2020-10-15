@@ -138,6 +138,10 @@ public class ElHunterPlugin extends Plugin
 			case SWAMP_LIZARDS:
 			case RED_SALAMANDER:
 				REQUIRED_ITEMS = List.of(954,303);
+				break;
+			case FALCONRY:
+				REQUIRED_ITEMS = null;
+				break;
 		}
 		clientTickCounter=-1;
 		clientTickBreak=0;
