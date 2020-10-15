@@ -235,7 +235,7 @@ public class ElHunterPlugin extends Plugin
 		}
 		for(int ID : REQUIRED_ITEMS){
 			if(!utils.inventoryContains(ID)){
-				log.info("inventory doesnt contain:" + ID);
+				utils.sendGameMessage("YOU ARE MISSING ITEMS! MAKE SURE YOU HAVE A LOT OF TRAPS IN INVENT.");
 				return MISSING_REQUIRED;
 			}
 		}
@@ -297,24 +297,21 @@ public class ElHunterPlugin extends Plugin
 	{
 		if(releaseLizards(10149)){
 			return RELEASING;
-		}
-		if(checkForGroundItems()){
+		} else if(checkForGroundItems()){
 			return PICKING_UP;
-		}
-		targetObject = utils.findNearestGameObject(9341);
-		if(targetObject!=null){
-			if(targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<8) {
+		} else {
+			targetObject = utils.findNearestGameObject(9341);
+			if(targetObject!=null && targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<8){
 				targetMenu = new MenuEntry("Set-trap", "<col=ffff>Young tree", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 				return SETTING_TRAP;
-			}
-		}
-		targetObject = utils.findNearestGameObject(9004);
-		if(targetObject!=null){
-			if(targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<8) {
-				targetMenu = new MenuEntry("Check", "<col=ffff>Net trap", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
-				return CHECKING_TRAP;
+			} else {
+				targetObject = utils.findNearestGameObject(9004);
+				if(targetObject!=null && targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<8){
+					targetMenu = new MenuEntry("Check", "<col=ffff>Net trap", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+					return CHECKING_TRAP;
+				}
 			}
 		}
 		return UNKNOWN;
@@ -324,26 +321,24 @@ public class ElHunterPlugin extends Plugin
 	{
 		if(releaseLizards(10147)){
 			return RELEASING;
-		}
-		if(checkForGroundItems()){
+		} else if(checkForGroundItems()){
 			return PICKING_UP;
-		}
-		targetObject = utils.findNearestGameObject(8990);
-		if(targetObject!=null){
-			if(targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<6) {
+		} else {
+			targetObject = utils.findNearestGameObject(8990);
+			if(targetObject!=null && targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<6){
 				targetMenu = new MenuEntry("Set-trap", "<col=ffff>Young tree", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 				return SETTING_TRAP;
+			} else {
+				targetObject = utils.findNearestGameObject(8986);
+				if(targetObject!=null && targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<6) {
+					targetMenu = new MenuEntry("Check", "<col=ffff>Net trap", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+					return CHECKING_TRAP;
+				}
 			}
 		}
-		targetObject = utils.findNearestGameObject(8986);
-		if(targetObject!=null){
-			if(targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<6) {
-				targetMenu = new MenuEntry("Check", "<col=ffff>Net trap", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
-				return CHECKING_TRAP;
-			}
-		}
+
 		return UNKNOWN;
 	}
 
@@ -377,52 +372,49 @@ public class ElHunterPlugin extends Plugin
 	{
 		if(dropFalconry()){
 			return DROPPING;
-		}
-		if(falconryProjectile()){
+		} else if(falconryProjectile()){
 			return CATCHING;
-		}
-		if(client.getBoostedSkillLevel(Skill.HUNTER)>68){
+		} else if(client.getBoostedSkillLevel(Skill.HUNTER)>68){
 			targetNPC = utils.findNearestNpc(1343);
 			if(targetNPC!=null){
 				targetMenu = new MenuEntry("Retrieve", "<col=ffff00>Gyr Falcon", targetNPC.getIndex(), 9, 0, 0, false);
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 				return CATCHING;
+			} else {
+				targetNPC = utils.findNearestNpc(5533);
+				if(targetNPC!=null){
+					targetMenu = new MenuEntry("Catch", "<col=ffff00>Dashing kebbit", targetNPC.getIndex(), 9, 0, 0, false);
+					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+					return RETRIEVING;
+				}
 			}
-			targetNPC = utils.findNearestNpc(5533);
-			if(targetNPC!=null){
-				targetMenu = new MenuEntry("Catch", "<col=ffff00>Dashing kebbit", targetNPC.getIndex(), 9, 0, 0, false);
-				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
-				return RETRIEVING;
-			}
-		}
-
-		if(client.getBoostedSkillLevel(Skill.HUNTER)>56){
+		} else if(client.getBoostedSkillLevel(Skill.HUNTER)>56){
 			targetNPC = utils.findNearestNpc(1344);
 			if(targetNPC!=null){
 				targetMenu = new MenuEntry("Retrieve", "<col=ffff00>Gyr Falcon", targetNPC.getIndex(), 9, 0, 0, false);
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 				return RETRIEVING;
+			} else {
+				targetNPC = utils.findNearestNpc(5532);
+				if(targetNPC!=null){
+					targetMenu = new MenuEntry("Catch", "<col=ffff00>Dark kebbit", targetNPC.getIndex(), 9, 0, 0, false);
+					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+					return CATCHING;
+				}
 			}
-			targetNPC = utils.findNearestNpc(5532);
-			if(targetNPC!=null){
-				targetMenu = new MenuEntry("Catch", "<col=ffff00>Dark kebbit", targetNPC.getIndex(), 9, 0, 0, false);
-				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
-				return CATCHING;
-			}
-		}
-
-		if(client.getBoostedSkillLevel(Skill.HUNTER)>42){
+		} else if(client.getBoostedSkillLevel(Skill.HUNTER)>42){
 			targetNPC = utils.findNearestNpc(1342);
 			if(targetNPC!=null){
 				targetMenu = new MenuEntry("Retrieve", "<col=ffff00>Gyr Falcon", targetNPC.getIndex(), 9, 0, 0, false);
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
 				return RETRIEVING;
-			}
-			targetNPC = utils.findNearestNpc(5531);
-			if(targetNPC!=null){
-				targetMenu = new MenuEntry("Catch", "<col=ffff00>Dark kebbit", targetNPC.getIndex(), 9, 0, 0, false);
-				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
-				return CATCHING;
+			} else {
+				targetNPC = utils.findNearestNpc(5531);
+				if(targetNPC!=null){
+					targetMenu = new MenuEntry("Catch", "<col=ffff00>Dark kebbit", targetNPC.getIndex(), 9, 0, 0, false);
+					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+					return CATCHING;
+				}
 			}
 		}
 		return UNKNOWN;
