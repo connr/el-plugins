@@ -12,6 +12,10 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.input.KeyListener;
+import net.runelite.client.input.KeyManager;
+import net.runelite.client.input.MouseListener;
+import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -20,6 +24,8 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 import net.runelite.client.plugins.botutils.BotUtils;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.*;
@@ -37,8 +43,7 @@ import static net.runelite.client.plugins.ElTest.ElTestState.*;
 		type = PluginType.SKILLING
 )
 @Slf4j
-public class ElTestPlugin extends Plugin
-{
+public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 	@Inject
 	private Client client;
 
@@ -60,6 +65,11 @@ public class ElTestPlugin extends Plugin
 	@Inject
 	private ElTestOverlay overlay;
 
+	@Inject
+	private MouseManager mouseManager;
+
+	@Inject
+	private KeyManager keyManager;
 
 
 	int clientTickBreak = 0;
@@ -83,6 +93,8 @@ public class ElTestPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		mouseManager.registerMouseListener(this);
+		keyManager.registerKeyListener(this);
 		botTimer = Instant.now();
 		setValues();
 		startTest=false;
@@ -92,6 +104,8 @@ public class ElTestPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
+		mouseManager.unregisterMouseListener(this);
+		keyManager.unregisterKeyListener(this);
 		overlayManager.remove(overlay);
 		setValues();
 		startTest=false;
@@ -139,6 +153,7 @@ public class ElTestPlugin extends Plugin
 	@Subscribe
 	private void onClientTick(ClientTick clientTick)
 	{
+		clientTickCounter++;
 		if(clientTickBreak>0){
 			clientTickBreak--;
 			return;
@@ -149,23 +164,7 @@ public class ElTestPlugin extends Plugin
 	@Subscribe
 	private void onGameTick(GameTick gameTick)
 	{
-		if(client.getWidget(541,17)!=null){
-			client.getWidget(541,17).setHidden(false);
-			client.getWidget(541,17).setOriginalX(0);
-			client.getWidget(541,17).setOriginalY(0);
-			client.getWidget(541,17).setRelativeX(0);
-			client.getWidget(541,17).setRelativeY(0);
-		}
-		try {
-			URL whatismyip = new URL("http://checkip.amazonaws.com");
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					whatismyip.openStream()));
-
-			String ip = in.readLine(); //you get the IP as a String
-			utils.sendGameMessage(ip);
-		} catch(Exception ignored){
-
-		}
+		clientTickCounter=0;
 		if (!startTest)
 		{
 			return;
@@ -245,5 +244,57 @@ public class ElTestPlugin extends Plugin
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+
+	@Override
+	public MouseEvent mouseClicked(MouseEvent mouseEvent) {
+		log.info("click"+String.valueOf(clientTickCounter));
+		return mouseEvent;
+	}
+
+	@Override
+	public MouseEvent mousePressed(MouseEvent mouseEvent) {
+		return mouseEvent;
+	}
+
+	@Override
+	public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+		return mouseEvent;
+	}
+
+	@Override
+	public MouseEvent mouseEntered(MouseEvent mouseEvent) {
+		return mouseEvent;
+	}
+
+	@Override
+	public MouseEvent mouseExited(MouseEvent mouseEvent) {
+		return mouseEvent;
+	}
+
+	@Override
+	public MouseEvent mouseDragged(MouseEvent mouseEvent) {
+		return mouseEvent;
+	}
+
+	@Override
+	public MouseEvent mouseMoved(MouseEvent mouseEvent) {
+		return mouseEvent;
+	}
+
+	@Override
+	public void keyTyped(KeyEvent keyEvent) {
+		log.info("key typed + " + keyEvent.getID());
+	}
+
+	@Override
+	public void keyPressed(KeyEvent keyEvent) {
+		log.info("key released + " + keyEvent.getID());
+	}
+
+	@Override
+	public void keyReleased(KeyEvent keyEvent) {
+		log.info("key released + " + keyEvent.getID());
+		log.info("key char + " + keyEvent.getID());
 	}
 }

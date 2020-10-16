@@ -28,6 +28,7 @@ package net.runelite.client.plugins.tickcooker;
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -39,6 +40,8 @@ import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -102,6 +105,8 @@ public class tickcookerPlugin extends Plugin
 	int rawKarambwanId = 3142;
 	boolean tickCooking;
 	int opcode;
+	int clientTickDelay;
+	int clientTickCounter;
 	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
 
 	WorldPoint HOSIDIUS_BANK = new WorldPoint(1676,3615,0);
@@ -132,6 +137,7 @@ public class tickcookerPlugin extends Plugin
 	protected void startUp()
 	{
 		chinBreakHandler.registerPlugin(this);
+		clientTickDelay=100;
 	}
 
 	@Override
@@ -153,6 +159,7 @@ public class tickcookerPlugin extends Plugin
 		startRaw=0;
 		currentRaw=0;
 		firstTime=true;
+		clientTickDelay=0;
 
 	}
 
@@ -236,7 +243,7 @@ public class tickcookerPlugin extends Plugin
 
 	private void interactCooker()
 	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.rangeObjectId());
+		targetObject = utils.findNearestGameObjectWithin(client.getLocalPlayer().getWorldLocation(),25,config.rangeObjectId());
 		if(targetObject!=null){
 			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
 			utils.setModifiedMenuEntry(targetMenu,rawKarambwanId,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),1);
@@ -333,9 +340,6 @@ public class tickcookerPlugin extends Plugin
 		{
 			return HANDLE_BREAK;
 		}
-		/*if(client.getLocalPlayer().getAnimation()!=-1){
-			return ANIMATING;
-		}*/
 		if(utils.isBankOpen()){ //if bank is open
 			return getBankState(); //check bank state
 		}
@@ -352,9 +356,14 @@ public class tickcookerPlugin extends Plugin
 
 	@Subscribe
 	private void onClientTick(ClientTick tick) {
+		if (!startTickCooker || chinBreakHandler.isBreakActive(this))
+		{
+			return;
+		}
 		if(client.getWidget(270,15)!=null){
 			if(!client.getWidget(270,15).isHidden()){
-				resumePauseWidget(17694735,utils.getInventoryItemCount(rawKarambwanId,false));
+				utils.pressKey(KeyEvent.VK_SPACE);
+				clientTickDelay=25;
 			}
 		}
 	}
@@ -451,8 +460,13 @@ public class tickcookerPlugin extends Plugin
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
 		log.info(event.toString());
-		if(config.valueFinder()){
-			utils.sendGameMessage("Id: " + event.getIdentifier() + ", Op Code: " + event.getOpcode() + ".");
+		if(targetMenu!=null){
+			event.consume();
+			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+			client.setSelectedItemSlot(27);
+			client.setSelectedItemID(3142);
+			client.invokeMenuAction(targetMenu.getOption(),targetMenu.getTarget(),targetMenu.getIdentifier(),targetMenu.getOpcode(),targetMenu.getParam0(),targetMenu.getParam1());
+			targetMenu=null;
 		}
 	}
 }
