@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Owain van Brakel <https:github.com/Owain94>
+ * Copyright (c) 2019 Owain van Brakel <https://github.com/Owain94>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,32 +23,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-rootProject.name = "Elliott Plugins"
+version = "1.0.0"
 
-include(":superglassmaker")
-include(":glassblower")
-include(":ouraniaaltar")
-include(":firemaker")
-include(":bloodrunecrafter")
-include(":sandstoneminer")
-include(":karambwanfisher")
-include(":cooker")
-include(":barbarianfisher")
-include(":tickcooker")
-include(":ElBankStander")
-include(":ElAstrals")
-include(":ElTest")
-include(":ElHunter")
-//include(":ElCosmics")
-include(":ElTutorial")
-include(":ElPlanks")
+project.extra["PluginName"] = "El Planks" // This is the name that is used in the external plugin manager panel
+project.extra["PluginDescription"] = "Makes plank in your POH" // This is the description that is used in the external plugin manager panel
 
-for (project in rootProject.children) {
-    project.apply {
-        projectDir = file(name)
-        buildFileName = "$name.gradle.kts"
+dependencies {
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
+}
 
-        require(projectDir.isDirectory) { "Project '${project.path} must have a $projectDir directory" }
-        require(buildFile.isFile) { "Project '${project.path} must have a $buildFile build script" }
+tasks {
+    jar {
+        manifest {
+            attributes(mapOf(
+                    "Plugin-Version" to project.version,
+                    "Plugin-Id" to nameToId(project.extra["PluginName"] as String),
+                    "Plugin-Provider" to project.extra["PluginProvider"],
+                    "Plugin-Dependencies" to
+                            arrayOf(
+                                    "botutils-plugin"
+                            ).joinToString(),
+                    "Plugin-Description" to project.extra["PluginDescription"],
+                    "Plugin-License" to project.extra["PluginLicense"]
+            ))
+        }
     }
 }
