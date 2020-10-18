@@ -170,7 +170,7 @@ public class tickcookerPlugin extends Plugin
 		{
 			return;
 		}
-		log.info("button {} pressed!", configButtonClicked.getKey());
+		log.debug("button {} pressed!", configButtonClicked.getKey());
 		if (configButtonClicked.getKey().equals("startButton"))
 		{
 			if (!startTickCooker)
@@ -283,7 +283,7 @@ public class tickcookerPlugin extends Plugin
 		}
 		else
 		{
-			log.info("Cooker is null.");
+			log.debug("Cooker is null.");
 		}
 	}
 
@@ -446,7 +446,7 @@ public class tickcookerPlugin extends Plugin
 
 	private tickcookerState getTickCookerState()
 	{
-		log.info("getting cooker state");
+		log.debug("getting cooker state");
 		if(utils.inventoryContains(rawKarambwanId))
 		{
 			return FIND_OBJECT;
@@ -458,7 +458,10 @@ public class tickcookerPlugin extends Plugin
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
-		log.info(event.toString());
+		log.debug(event.toString());
+		if(config.valueFinder()){
+			utils.sendGameMessage("Id: " + event.getIdentifier() + ", Op Code: " + event.getOpcode() + ".");
+		}
 		if(targetMenu!=null){
 			event.consume();
 			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
