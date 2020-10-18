@@ -248,9 +248,9 @@ public class tickcookerPlugin extends Plugin
 			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
 			utils.setModifiedMenuEntry(targetMenu,rawKarambwanId,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),1);
 			if(targetObject.getConvexHull()!=null) {
-				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), 0);
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 			} else {
-				utils.delayMouseClick(new Point(0,0),0);
+				utils.delayMouseClick(new Point(0,0),sleepDelay());
 			}
 		} else {
 			utils.sendGameMessage("cooker is null.");
@@ -259,16 +259,15 @@ public class tickcookerPlugin extends Plugin
 
 	private void interactFire()
 	{
-		if(firstTime){
-			targetMenu = new MenuEntry("Use","Use",rawKarambwanId,38,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),9764864,false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(utils.getInventoryWidgetItem(rawKarambwanId).getCanvasBounds(), sleepDelay());
-			firstTime=false;
-		} else {
-			targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
-			targetMenu = new MenuEntry("Use","<col=ff9040>Raw shark<col=ffffff> -> <col=ffff>Fire",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
+		if(targetObject!=null){
+			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setModifiedMenuEntry(targetMenu,rawKarambwanId,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),1);
+			if(targetObject.getConvexHull()!=null) {
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			} else {
+				utils.delayMouseClick(new Point(0,0),sleepDelay());
+			}
 		}
 	}
 
