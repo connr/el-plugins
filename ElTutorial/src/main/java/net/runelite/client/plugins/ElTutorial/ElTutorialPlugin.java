@@ -988,6 +988,7 @@ public class ElTutorialPlugin extends Plugin
 	{
 		targetMenu = new MenuEntry("","",0,30,option,14352385,false);
 		utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+
 	}
 
 	private void selectName()

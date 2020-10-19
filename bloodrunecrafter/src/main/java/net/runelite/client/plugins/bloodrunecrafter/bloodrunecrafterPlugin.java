@@ -432,6 +432,8 @@ public class bloodrunecrafterPlugin extends Plugin
 
 	private void bloodRunecraftFunction()
 	{
+		targetMenu=null;
+		utils.setMenuEntry(null);
 		switch (state){
 			case OBSTACLE_1:
 				targetGroundObject = utils.findNearestGroundObject(34741);
