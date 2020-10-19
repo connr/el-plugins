@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.bloodrunecrafter;
+package net.runelite.client.plugins.ElBloods;
 
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
@@ -48,8 +48,7 @@ import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
-import static net.runelite.client.plugins.bloodrunecrafter.bloodrunecrafterState.*;
-import static net.runelite.client.plugins.bloodrunecrafter.bloodrunecrafterType.*;
+import static net.runelite.client.plugins.ElBloods.ElBloodsState.*;
 
 
 @Extension
@@ -62,13 +61,13 @@ import static net.runelite.client.plugins.bloodrunecrafter.bloodrunecrafterType.
 	type = PluginType.SKILLING
 )
 @Slf4j
-public class bloodrunecrafterPlugin extends Plugin
+public class ElBloodsPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private bloodrunecrafterConfiguration config;
+	private ElBloodsConfiguration config;
 
 	@Inject
 	private BotUtils utils;
@@ -83,13 +82,13 @@ public class bloodrunecrafterPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private bloodrunecrafterOverlay overlay;
+	private ElBloodsOverlay overlay;
 
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
 
-	bloodrunecrafterState state;
+	ElBloodsState state;
 	GameObject targetObject;
 	GroundObject targetGroundObject;
 	MenuEntry targetMenu;
@@ -117,7 +116,6 @@ public class bloodrunecrafterPlugin extends Plugin
 	long sleepLength;
 	boolean startBloodRunecrafter;
 	boolean firstTimeUsingChisel;
-	private final Set<Integer> itemIds = new HashSet<>();
 	private final Set<Integer> objectIds = new HashSet<>();
 	private final int requiredIds = 1755;
 	int startBloodRunes;
@@ -125,9 +123,9 @@ public class bloodrunecrafterPlugin extends Plugin
 
 
 	@Provides
-	bloodrunecrafterConfiguration provideConfig(ConfigManager configManager)
+	ElBloodsConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(bloodrunecrafterConfiguration.class);
+		return configManager.getConfig(ElBloodsConfiguration.class);
 	}
 
 	@Override
@@ -154,7 +152,6 @@ public class bloodrunecrafterPlugin extends Plugin
 		startBloodRunecrafter = false;
 		firstTimeUsingChisel = true;
 		objectIds.clear();
-		itemIds.clear();
 	}
 
 	@Subscribe
@@ -276,7 +273,7 @@ public class bloodrunecrafterPlugin extends Plugin
 		}
     }
 
-	public bloodrunecrafterState getState()
+	public ElBloodsState getState()
 	{
 		if (timeout > 0)
 		{
@@ -361,7 +358,7 @@ public class bloodrunecrafterPlugin extends Plugin
 					break;
 				case MISSING_ITEMS:
 					startBloodRunecrafter = false;
-					utils.sendGameMessage("Missing required items IDs: " + String.valueOf(requiredIds) + " from inventory. Stopping.");
+					utils.sendGameMessage("Missing required items IDs: " + requiredIds + " from inventory. Stopping.");
 					resetVals();
 					break;
 				case HANDLE_BREAK:
@@ -400,22 +397,6 @@ public class bloodrunecrafterPlugin extends Plugin
 							timeout = tickDelay();
 							break;
 					}
-			}
-		}
-	}
-
-	@Subscribe
-	public void onGameObjectDespawned(GameObjectDespawned event)
-	{
-		if (targetObject == null || event.getGameObject() != targetObject || !startBloodRunecrafter)
-		{
-			return;
-		}
-		else
-		{
-			if (client.getLocalDestinationLocation() != null)
-			{
-				interactObject(); //This is a failsafe, Player can get stuck with a destination on object despawn and be "forever moving".
 			}
 		}
 	}
@@ -669,7 +650,7 @@ public class bloodrunecrafterPlugin extends Plugin
 		}
 	}
 
-	private bloodrunecrafterState getBloodRunecraftState()
+	private ElBloodsState getBloodRunecraftState()
 	{
 		if(utils.inventoryFull()){
 			if(utils.inventoryContains(13445)) { //mined blocks
@@ -714,7 +695,7 @@ public class bloodrunecrafterPlugin extends Plugin
 		return WAIT_DENSE_ESSENCE;
 	}
 
-	private bloodrunecrafterState getSoulRunecraftState()
+	private ElBloodsState getSoulRunecraftState()
 	{
 		if(utils.inventoryFull()){
 			if(utils.inventoryContains(13445)) { //mined blocks

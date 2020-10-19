@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.bloodrunecrafter;
+package net.runelite.client.plugins.ElBloods;
 
 import net.runelite.client.config.Button;
 import net.runelite.client.config.Config;
@@ -34,8 +34,8 @@ import net.runelite.client.config.ConfigTitleSection;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Title;
 
-@ConfigGroup("bloodrunecrafter")
-public interface bloodrunecrafterConfiguration extends Config
+@ConfigGroup("ElBloods")
+public interface ElBloodsConfiguration extends Config
 {
 
 	@ConfigSection(
@@ -254,9 +254,9 @@ public interface bloodrunecrafterConfiguration extends Config
 			position = 71,
 			titleSection = "bloodrunecrafterTitle"
 	)
-	default bloodrunecrafterType mode()
+	default ElBloodsType mode()
 	{
-		return bloodrunecrafterType.BLOOD_RUNES;
+		return ElBloodsType.BLOOD_RUNES;
 	}
 
 	@ConfigItem(

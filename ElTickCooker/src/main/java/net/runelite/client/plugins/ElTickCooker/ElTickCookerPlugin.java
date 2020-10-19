@@ -104,7 +104,6 @@ public class ElTickCookerPlugin extends Plugin
 	int timeout = 0;
 	long sleepLength;
 	boolean startTickCooker;
-	private final Set<Integer> itemIds = new HashSet<>();
 
 	int startRaw;
 	int currentRaw;
@@ -214,18 +213,6 @@ public class ElTickCookerPlugin extends Plugin
 		int tickLength = (int) utils.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
 		log.debug("tick delay for {} ticks", tickLength);
 		return tickLength;
-	}
-
-	static void resumePauseWidget(int widgetId, int arg){
-		try {
-
-			Class clazz = Class.forName(className);
-			Method method = clazz.getDeclaredMethod(methodName, int.class, int.class, int.class);
-			method.setAccessible(true);
-			method.invoke(null, widgetId, arg, garbageValue);
-		} catch (Exception ignored) {
-			return;
-		}
 	}
 
 	private void interactCooker()

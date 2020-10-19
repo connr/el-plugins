@@ -28,7 +28,7 @@ rootProject.name = "Elliott Plugins"
 include(":ElAstrals")
 include(":ElBankStander")
 include(":barbarianfisher")
-include(":bloodrunecrafter")
+include(":ElBloods")
 include(":ElCooker")
 //include(":ElCosmics")
 include(":firemaker")

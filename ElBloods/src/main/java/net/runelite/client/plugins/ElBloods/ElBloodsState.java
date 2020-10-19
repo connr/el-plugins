@@ -1,6 +1,6 @@
-package net.runelite.client.plugins.bloodrunecrafter;
+package net.runelite.client.plugins.ElBloods;
 
-public enum bloodrunecrafterState
+public enum ElBloodsState
 {
 	ANIMATING,
 	DROP_EXCEPT,

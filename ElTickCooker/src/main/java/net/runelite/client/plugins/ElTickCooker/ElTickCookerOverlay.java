@@ -31,7 +31,7 @@ class ElTickCookerOverlay extends OverlayPanel
 	private String infoStatus = "Starting...";
 
 	@Inject
-	private ElTickCookerOverlay(final Client client, final ElTickCookerPlugin plugin, final ElTickCookerConfiguration config)
+	private ElTickCookerOverlay(final ElTickCookerPlugin plugin, final ElTickCookerConfiguration config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.DYNAMIC);

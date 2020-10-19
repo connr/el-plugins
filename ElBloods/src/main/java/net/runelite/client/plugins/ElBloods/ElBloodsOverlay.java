@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.bloodrunecrafter;
+package net.runelite.client.plugins.ElBloods;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -22,16 +22,16 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
 @Slf4j
 @Singleton
-class bloodrunecrafterOverlay extends OverlayPanel
+class ElBloodsOverlay extends OverlayPanel
 {
-	private final bloodrunecrafterPlugin plugin;
-	private final bloodrunecrafterConfiguration config;
+	private final ElBloodsPlugin plugin;
+	private final ElBloodsConfiguration config;
 
 	String timeFormat;
 	private String infoStatus = "Starting...";
 
 	@Inject
-	private bloodrunecrafterOverlay(final Client client, final bloodrunecrafterPlugin plugin, final bloodrunecrafterConfiguration config)
+	private ElBloodsOverlay(final Client client, final ElBloodsPlugin plugin, final ElBloodsConfiguration config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.DYNAMIC);
