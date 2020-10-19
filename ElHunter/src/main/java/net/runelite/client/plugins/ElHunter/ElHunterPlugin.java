@@ -307,7 +307,8 @@ public class ElHunterPlugin extends Plugin
 			return PICKING_UP;
 		} else {
 			targetObject = utils.findNearestGameObject(9341);
-			if(utils.getGameObjects(9257).size()+utils.getGameObjects(9004).size()+utils.getGameObjects(9003).size()>=config.numTraps()){
+
+			if(utils.getLocalGameObjects(10,9257).size()+utils.getLocalGameObjects(10,9004).size()+utils.getLocalGameObjects(10,9003).size()>=config.numTraps()){
 				targetObject = null;
 			}
 			if(targetObject!=null && targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<8){
