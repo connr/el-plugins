@@ -77,6 +77,25 @@ public interface ElHunterConfig extends Config
 		return ElHunterType.SWAMP_LIZARDS;
 	}
 
+	@Range(
+			min = 2,
+			max = 3
+	)
+	@ConfigItem(
+			keyName = "numTraps",
+			name = "Number of Traps",
+			description = "Select how many traps you would like to use.",
+			position = 2,
+			titleSection = "generalTitle",
+			hidden = true,
+			unhide = "type",
+			unhideValue = "SWAMP_LIZARDS"
+	)
+	default int numTraps()
+	{
+		return 2;
+	}
+
 
 
 	@ConfigTitleSection(

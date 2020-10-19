@@ -307,6 +307,9 @@ public class ElHunterPlugin extends Plugin
 			return PICKING_UP;
 		} else {
 			targetObject = utils.findNearestGameObject(9341);
+			if(utils.getGameObjects(9257).size()+utils.getGameObjects(9004).size()+utils.getGameObjects(9003).size()>=config.numTraps()){
+				targetObject = null;
+			}
 			if(targetObject!=null && targetObject.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())<8){
 				targetMenu = new MenuEntry("Set-trap", "<col=ffff>Young tree", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());

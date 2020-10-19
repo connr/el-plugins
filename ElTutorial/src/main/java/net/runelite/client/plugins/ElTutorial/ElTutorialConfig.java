@@ -102,7 +102,6 @@ public interface ElTutorialConfig extends Config
 	}
 
 
-
 	@ConfigTitleSection(
 			keyName = "delayTitle",
 			name = "Delay Config",
