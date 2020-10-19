@@ -23,13 +23,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.tickcooker;
+package net.runelite.client.plugins.ElTickCooker;
 
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.*;
@@ -37,10 +35,8 @@ import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
-import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -53,7 +49,7 @@ import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
-import static net.runelite.client.plugins.tickcooker.tickcookerState.*;
+import static net.runelite.client.plugins.ElTickCooker.ElTickCookerState.*;
 
 
 @Extension
@@ -66,13 +62,13 @@ import static net.runelite.client.plugins.tickcooker.tickcookerState.*;
 	type = PluginType.SKILLING
 )
 @Slf4j
-public class tickcookerPlugin extends Plugin
+public class ElTickCookerPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private tickcookerConfiguration config;
+	private ElTickCookerConfiguration config;
 
 	@Inject
 	private BotUtils utils;
@@ -87,13 +83,13 @@ public class tickcookerPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private tickcookerOverlay overlay;
+	private ElTickCookerOverlay overlay;
 
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
 
-	tickcookerState state;
+	ElTickCookerState state;
 	GameObject targetObject;
 	NPC targetNpc;
 	MenuEntry targetMenu;
@@ -103,16 +99,7 @@ public class tickcookerPlugin extends Plugin
 	Player player;
 	boolean firstTime;
 	int rawKarambwanId = 3142;
-	boolean tickCooking;
-	int opcode;
 	int clientTickDelay;
-	int clientTickCounter;
-	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
-
-	WorldPoint HOSIDIUS_BANK = new WorldPoint(1676,3615,0);
-	WorldPoint HOSIDIUS_RANGE = new WorldPoint(1677,3621,0);
-
-	WorldArea HOSIDIUS_HOUSE = new WorldArea(new WorldPoint(1673,3613,0),new WorldPoint(1685,3624,0));
 
 	int timeout = 0;
 	long sleepLength;
@@ -128,9 +115,9 @@ public class tickcookerPlugin extends Plugin
 
 
 	@Provides
-	tickcookerConfiguration provideConfig(ConfigManager configManager)
+	ElTickCookerConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(tickcookerConfiguration.class);
+		return configManager.getConfig(ElTickCookerConfiguration.class);
 	}
 
 	@Override
@@ -298,7 +285,7 @@ public class tickcookerPlugin extends Plugin
 		}
 	}
 
-	private tickcookerState getBankState()
+	private ElTickCookerState getBankState()
 	{
 		if (startRaw == 0) {
 			startRaw=utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
@@ -324,7 +311,7 @@ public class tickcookerPlugin extends Plugin
 		return UNHANDLED_STATE;
 	}
 
-	public tickcookerState getState()
+	public ElTickCookerState getState()
 	{
 		if (timeout > 0)
 		{
@@ -444,7 +431,7 @@ public class tickcookerPlugin extends Plugin
 		}
 	}
 
-	private tickcookerState getTickCookerState()
+	private ElTickCookerState getTickCookerState()
 	{
 		log.debug("getting cooker state");
 		if(utils.inventoryContains(rawKarambwanId))

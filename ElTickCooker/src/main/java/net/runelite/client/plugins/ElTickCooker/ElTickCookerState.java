@@ -1,6 +1,6 @@
-package net.runelite.client.plugins.tickcooker;
+package net.runelite.client.plugins.ElTickCooker;
 
-public enum tickcookerState
+public enum ElTickCookerState
 {
 	ANIMATING,
 	FIND_OBJECT,

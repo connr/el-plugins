@@ -25,23 +25,23 @@
 
 rootProject.name = "Elliott Plugins"
 
-include(":superglassmaker")
-include(":glassblower")
-include(":ouraniaaltar")
-include(":firemaker")
-include(":bloodrunecrafter")
-include(":sandstoneminer")
-include(":ElKarambwans")
-include(":ElCooker")
-include(":barbarianfisher")
-include(":tickcooker")
-include(":ElBankStander")
 include(":ElAstrals")
-include(":ElTest")
-include(":ElHunter")
+include(":ElBankStander")
+include(":barbarianfisher")
+include(":bloodrunecrafter")
+include(":ElCooker")
 //include(":ElCosmics")
-include(":ElTutorial")
+include(":firemaker")
+include(":glassblower")
+include(":ElHunter")
+include(":ElKarambwans")
 include(":ElPlanks")
+include(":sandstoneminer")
+include(":superglassmaker")
+include(":ElTest")
+include(":ElTickCooker")
+include(":ElTutorial")
+include(":ouraniaaltar")
 
 for (project in rootProject.children) {
     project.apply {
