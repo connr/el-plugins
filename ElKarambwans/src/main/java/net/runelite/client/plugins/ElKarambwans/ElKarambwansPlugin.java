@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.karambwanfisher;
+package net.runelite.client.plugins.ElKarambwans;
 
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
@@ -48,7 +48,7 @@ import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
-import static net.runelite.client.plugins.karambwanfisher.karambwanfisherState.*;
+import static net.runelite.client.plugins.ElKarambwans.ElKarambwansState.*;
 
 
 @Extension
@@ -61,13 +61,13 @@ import static net.runelite.client.plugins.karambwanfisher.karambwanfisherState.*
 	type = PluginType.SKILLING
 )
 @Slf4j
-public class karambwanfisherPlugin extends Plugin
+public class ElKarambwansPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private karambwanfisherConfiguration config;
+	private ElKarambwansConfiguration config;
 
 	@Inject
 	private BotUtils utils;
@@ -82,13 +82,13 @@ public class karambwanfisherPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private karambwanfisherOverlay overlay;
+	private ElKarambwansOverlay overlay;
 
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
 
-	karambwanfisherState state;
+	ElKarambwansState state;
 	GameObject targetObject;
 	NPC targetNPC;
 	MenuEntry targetMenu;
@@ -114,9 +114,9 @@ public class karambwanfisherPlugin extends Plugin
 
 
 	@Provides
-	karambwanfisherConfiguration provideConfig(ConfigManager configManager)
+	ElKarambwansConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(karambwanfisherConfiguration.class);
+		return configManager.getConfig(ElKarambwansConfiguration.class);
 	}
 
 	@Override
@@ -241,7 +241,7 @@ public class karambwanfisherPlugin extends Plugin
 		}
 	}
 
-	private karambwanfisherState getBankState()
+	private ElKarambwansState getBankState()
 	{
 		if(utils.inventoryFull()){
 			return DEPOSIT_ITEMS;
@@ -252,7 +252,7 @@ public class karambwanfisherPlugin extends Plugin
 		return UNHANDLED_STATE;
 	}
 
-	public karambwanfisherState getState()
+	public ElKarambwansState getState()
 	{
 		if (timeout > 0)
 		{
@@ -371,7 +371,7 @@ public class karambwanfisherPlugin extends Plugin
 		}
 	}
 
-	private karambwanfisherState getKarambwanFisherState()
+	private ElKarambwansState getKarambwanFisherState()
 	{
 		log.info("getting karambwan fishing state");
 		if(utils.inventoryFull()){

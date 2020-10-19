@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.karambwanfisher;
+package net.runelite.client.plugins.ElKarambwans;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -22,16 +22,16 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
 @Slf4j
 @Singleton
-class karambwanfisherOverlay extends OverlayPanel
+class ElKarambwansOverlay extends OverlayPanel
 {
-	private final karambwanfisherPlugin plugin;
-	private final karambwanfisherConfiguration config;
+	private final ElKarambwansPlugin plugin;
+	private final ElKarambwansConfiguration config;
 
 	String timeFormat;
 	private String infoStatus = "Starting...";
 
 	@Inject
-	private karambwanfisherOverlay(final Client client, final karambwanfisherPlugin plugin, final karambwanfisherConfiguration config)
+	private ElKarambwansOverlay(final Client client, final ElKarambwansPlugin plugin, final ElKarambwansConfiguration config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.DYNAMIC);

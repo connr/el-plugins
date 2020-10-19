@@ -1,6 +1,6 @@
-package net.runelite.client.plugins.karambwanfisher;
+package net.runelite.client.plugins.ElKarambwans;
 
-public enum karambwanfisherState
+public enum ElKarambwansState
 {
 	ANIMATING,
 	FIND_NPC,
