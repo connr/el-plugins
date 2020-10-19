@@ -89,6 +89,18 @@ public interface ElTutorialConfig extends Config
 		return false;
 	}
 
+	@ConfigItem(
+			keyName = "bankPin",
+			name = "Bank Pin (Iron Only)",
+			description = "Enter your bank pin here.",
+			position = 3,
+			titleSection = "generalTitle"
+	)
+	default String bankPin()
+	{
+		return "1337";
+	}
+
 
 
 	@ConfigTitleSection(

@@ -569,6 +569,6 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 	@Override
 	public void keyReleased(KeyEvent keyEvent) {
 		log.info("key released + " + keyEvent.getID());
-		log.info("key char + " + keyEvent.getID());
+		log.info("key char + " + keyEvent.getKeyChar());
 	}
 }

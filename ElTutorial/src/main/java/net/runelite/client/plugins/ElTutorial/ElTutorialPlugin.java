@@ -5,10 +5,9 @@ import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.Point;
-import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
-import net.runelite.api.queries.TileQuery;
+import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -24,8 +23,6 @@ import net.runelite.client.plugins.botutils.BotUtils;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.time.Instant;
-import java.util.*;
-import java.util.List;
 import static net.runelite.client.plugins.ElTutorial.ElTutorialState.*;
 
 @Extension
@@ -72,6 +69,7 @@ public class ElTutorialPlugin extends Plugin
 	ElTutorialState status;
 	int varbitValue;
 	int tutorialSectionProgress;
+	int ironmanProgress;
 
 	//overlay data
 	Instant botTimer;
@@ -146,16 +144,6 @@ public class ElTutorialPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onClientTick(ClientTick clientTick)
-	{
-		if(clientTickBreak>0){
-			clientTickBreak--;
-			return;
-		}
-		clientTickBreak=utils.getRandomIntBetweenRange(4,6);
-	}
-
-	@Subscribe
 	private void onGameTick(GameTick gameTick)
 	{
 		if (!startTutorial)
@@ -227,11 +215,7 @@ public class ElTutorialPlugin extends Plugin
 			return TICK_TIMER;
 		}
 		tickTimer=tickDelay();
-		switch (config.type()) {
-			case REGULAR:
-				return getRegularState();
-		}
-		return UNKNOWN;
+		return getRegularState();
 	}
 
 	private Point getRandomNullPoint()
@@ -264,10 +248,29 @@ public class ElTutorialPlugin extends Plugin
 			case 1:
 				switch(tutorialSectionProgress){
 					case 0:
-						if(config.female()){
+						if(client.getWidget(162,45)!=null && !client.getWidget(162,45).isHidden()){
+							client.setVar(VarClientInt.INPUT_TYPE, 15);
+							client.setVar(VarClientStr.INPUT_TEXT, String.valueOf("zezima"));
+							client.runScript(681);
+							client.runScript(ScriptID.MESSAGE_LAYER_CLOSE);
+							break;
+						} else if(client.getWidget(558,14)!=null && !client.getWidget(558,14).isHidden()){
+							selectName();
+							break;
+						} else if(client.getWidget(558,12)!=null && !client.getWidget(558,12).isHidden()){
+							if(client.getWidget(558,12).getText().contains("available")){
+								setName();
+								tickTimer+=6;
+								break;
+							}
+						} else if(config.female()){
 							makeFemale();
+							tutorialSectionProgress++;
+							break;
+						} else if(!config.female()){
+							tutorialSectionProgress++;
+							break;
 						}
-						tutorialSectionProgress++;
 						break;
 					case 1:
 					case 2:
@@ -289,6 +292,21 @@ public class ElTutorialPlugin extends Plugin
 				}
 				break;
 			case 2:
+				if(client.getWidget(219,1)!=null && client.getWidget(219,1).getChild(0).getText().contains("your experience")){
+					answerExperienceQuestions();
+					break;
+				} else {
+					switch(tutorialSectionProgress){
+						case 0:
+							talkNPC(3308);
+							tutorialSectionProgress++;
+							break;
+						case 1:
+							pressSpace();
+							break;
+					}
+				}
+				break;
 			case 7:
 				switch(tutorialSectionProgress){
 					case 0:
@@ -722,20 +740,47 @@ public class ElTutorialPlugin extends Plugin
 				}
 				break;
 			case 620:
-				switch(tutorialSectionProgress) {
-					case 0:
-						utils.walk(new WorldPoint(3141,3090,0),0,sleepDelay());
-						tutorialSectionProgress++;
-						break;
-					case 1:
-						utils.setMenuEntry(null);
-						targetMenu=null;
-						talkNPC(3309);
-						tutorialSectionProgress++;
-						break;
-					case 2:
-						pressSpace();
-						break;
+				if(config.type().equals(ElTutorialType.REGULAR)){
+					switch(tutorialSectionProgress) {
+						case 0:
+							utils.walk(new WorldPoint(3141,3090,0),0,sleepDelay());
+							tutorialSectionProgress++;
+							break;
+						case 1:
+							utils.setMenuEntry(null);
+							targetMenu=null;
+							talkNPC(3309);
+							tutorialSectionProgress++;
+							break;
+						case 2:
+							pressSpace();
+							break;
+					}
+				} else {
+					switch(tutorialSectionProgress) {
+						case 0:
+							utils.walk(new WorldPoint(3131,3087,0),0,sleepDelay());
+							tutorialSectionProgress++;
+							break;
+						case 1:
+							utils.setMenuEntry(null);
+							targetMenu=null;
+							talkNPC(7941);
+							tutorialSectionProgress++;
+							ironmanProgress=0;
+							break;
+						case 2:
+							makeIronman();
+							break;
+						case 3:
+						case 4:
+							talkNPC(3309);
+							tutorialSectionProgress++;
+							break;
+						case 5:
+							pressSpace();
+							break;
+					}
 				}
 				break;
 			case 630:
@@ -779,10 +824,6 @@ public class ElTutorialPlugin extends Plugin
 						tutorialSectionProgress++;
 						break;
 					case 4:
-						pressOption(3);
-						tutorialSectionProgress++;
-						break;
-					case 5:
 						pressSpace();
 						break;
 				}
@@ -794,9 +835,63 @@ public class ElTutorialPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onVarbitChanged(VarbitChanged event){
+	private void onVarbitChanged(VarbitChanged event)
+	{
 		if(event.getIndex()==281){
 			tutorialSectionProgress=0;
+		}
+	}
+
+	private void makeIronman()
+	{
+		log.info(String.valueOf(ironmanProgress));
+		switch(ironmanProgress){
+			default:
+				pressSpace();
+				ironmanProgress++;
+				break;
+			case 1:
+			case 13:
+			case 16:
+				pressOption(1);
+				ironmanProgress++;
+				break;
+			case 15:
+				switch(config.type()){
+					case IRONMAN:
+						selectIron();
+						ironmanProgress++;
+						break;
+					case HARDCORE_IRONMAN:
+						selectHardcore();
+						ironmanProgress++;
+						break;
+				}
+				break;
+			case 17:
+			case 21:
+				pressKey(config.bankPin().charAt(0));
+				ironmanProgress++;
+				break;
+			case 18:
+			case 22:
+				pressKey(config.bankPin().charAt(1));
+				ironmanProgress++;
+				break;
+			case 19:
+			case 23:
+				pressKey(config.bankPin().charAt(2));
+				ironmanProgress++;
+				break;
+			case 20:
+			case 24:
+				pressKey(config.bankPin().charAt(3));
+				ironmanProgress++;
+				break;
+			case 25:
+				pressSpace();
+				tutorialSectionProgress++;
+				break;
 		}
 	}
 
@@ -893,5 +988,55 @@ public class ElTutorialPlugin extends Plugin
 	{
 		targetMenu = new MenuEntry("","",0,30,option,14352385,false);
 		utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+	}
+
+	private void selectName()
+	{
+		targetMenu = new MenuEntry("","",1,57,-1,36569102,false);
+		utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+	}
+
+	private void setName()
+	{
+		targetMenu = new MenuEntry("","",1,57,-1,36569106,false);
+		utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+	}
+
+	private void selectIron()
+	{
+		targetMenu = new MenuEntry("","",1,57,-1,14090251,false);
+		utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+	}
+
+	private void selectHardcore()
+	{
+		targetMenu = new MenuEntry("","",1,57,-1,14090252,false);
+		utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+	}
+
+	private void answerExperienceQuestions()
+	{
+		for(Widget option : client.getWidget(219,1).getChildren()){
+			if(option.getText().contains("experienced")){
+				pressOption(option.getIndex());
+			}
+		}
+	}
+
+	public void pressKey(char key)
+	{
+		keyEvent(401, key);
+		keyEvent(402, key);
+		keyEvent(400, key);
+	}
+
+	private void keyEvent(int id, char key)
+	{
+		KeyEvent e = new KeyEvent(
+				client.getCanvas(), id, System.currentTimeMillis(),
+				0, KeyEvent.VK_UNDEFINED, key
+		);
+
+		client.getCanvas().dispatchEvent(e);
 	}
 }
