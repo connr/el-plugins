@@ -157,7 +157,7 @@ public class ElBloodsPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("bloodrunecrafter"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElBloods"))
 		{
 			return;
 		}
@@ -192,7 +192,7 @@ public class ElBloodsPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("bloodrunecrafter"))
+		if (!event.getGroup().equals("ElBloods"))
 		{
 			return;
 		}

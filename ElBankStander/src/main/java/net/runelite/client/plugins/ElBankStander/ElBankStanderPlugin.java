@@ -139,7 +139,7 @@ public class ElBankStanderPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElBankStanderConfig"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElBankStander"))
 		{
 			return;
 		}

@@ -28,6 +28,7 @@ package net.runelite.client.plugins.ElTickCooker;
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.*;
@@ -152,7 +153,7 @@ public class ElTickCookerPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("tickcooker"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElTickCooker"))
 		{
 			return;
 		}
@@ -180,7 +181,7 @@ public class ElTickCookerPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("tickcooker"))
+		if (!event.getGroup().equals("ElTickCooker"))
 		{
 			return;
 		}

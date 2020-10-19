@@ -26,7 +26,7 @@ package net.runelite.client.plugins.ElBankStander;
 
 import net.runelite.client.config.*;
 
-@ConfigGroup("ElBankStanderConfig")
+@ConfigGroup("ElBankStander")
 
 public interface ElBankStanderConfig extends Config
 {
