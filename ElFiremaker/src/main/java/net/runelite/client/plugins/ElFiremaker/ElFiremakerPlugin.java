@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import static net.runelite.client.plugins.ElFiremaker.ElFiremakerState.*;
 
 @Extension
 @PluginDependency(BotUtils.class)
@@ -66,7 +67,7 @@ public class ElFiremakerPlugin extends Plugin
 	Instant botTimer;
 	Player player;
 	boolean firstTime;
-	String state;
+	ElFiremakerState state;
 	boolean startFireMaker;
 	GameObject gameObject;
 	WorldPoint startTile;
@@ -201,19 +202,19 @@ public class ElFiremakerPlugin extends Plugin
 		player = client.getLocalPlayer();
 
 		if(player==null){
-			state = "null player";
+			state = NULL_PLAYER;
 			return;
 		}
 		beforeLoc=currentLoc;
 		currentLoc=player.getWorldLocation();
 		if(player.getAnimation()!=-1){
-			state = "animating";
+			state = ANIMATING;
 			timeout=tickDelay();
 			return;
 		}
 		if(currentLoc.getX()!=beforeLoc.getX() ||
 			currentLoc.getY()!=beforeLoc.getY()){
-			state = "moving";
+			state = MOVING;
 			return;
 		}
 		if(timeout>0){
@@ -225,7 +226,7 @@ public class ElFiremakerPlugin extends Plugin
 		if(!utils.isBankOpen()) {
 			if (utils.getInventorySpace() == 28 - requiredItems.size()) {
 				openNearestBank();
-				state = "opening nearest bank";
+				state = OPEN_BANK;
 				timeout = tickDelay();
 				return;
 			}
@@ -233,7 +234,7 @@ public class ElFiremakerPlugin extends Plugin
 		//26185 fire id
 		if(!utils.isBankOpen() && utils.inventoryFull() && player.getWorldLocation().equals(new WorldPoint(3185, 3436, 0))){
 			getToVarrockSquare();
-			state = "getting to varrock sq";
+			state = WALK_SQUARE;
 			timeout=tickDelay();
 			return;
 		}
@@ -250,7 +251,7 @@ public class ElFiremakerPlugin extends Plugin
 				utils.walk(LocalPoint.fromWorld(client,startTile), 0, sleepDelay());
 			}
 			timeout = tickDelay();
-			state = "walking to start tile";
+			state = WALK_START;
 			return;
 		}
 		if(!utils.isBankOpen()){
@@ -259,29 +260,29 @@ public class ElFiremakerPlugin extends Plugin
 				utils.setMenuEntry(targetMenu);
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				firstTime=false;
-				state="lighting first log";
+				state=LIGHT_FIRST;
 				return;
 			}
 			targetMenu = new MenuEntry("Use","<col=ff9040>Tinderbox<col=ffffff> -> <col=ff9040>"+itemManager.getItemDefinition(config.logId()).getName(),config.logId(),31,utils.getInventoryWidgetItem(config.logId()).getIndex(),9764864,false);
 			utils.setMenuEntry(targetMenu);
 			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 			timeout = tickDelay();
-			state="lighting a log";
+			state=LIGHT_LOG;
 			return;
 		}
 		if(utils.inventoryFull()){
 			closeBank();
-			state = "closing bank";
+			state = CLOSE_BANK;
 			timeout=tickDelay();
 			return;
 		}
 		if(utils.isBankOpen() && !utils.inventoryFull()){
 			utils.withdrawAllItem(config.logId());
-			state = "withdrawing logs";
+			state = WITHDRAW_LOGS;
 			timeout=tickDelay();
 			return;
 		}
-		state = "not sure";
+		state = NOT_SURE;
 	}
 
 	private void openNearestBank()
