@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.cooker;
+package net.runelite.client.plugins.ElCooker;
 
 import net.runelite.client.config.Button;
 import net.runelite.client.config.Config;
@@ -34,8 +34,8 @@ import net.runelite.client.config.ConfigTitleSection;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Title;
 
-@ConfigGroup("cooker")
-public interface cookerConfiguration extends Config
+@ConfigGroup("ElCooker")
+public interface ElCookerConfiguration extends Config
 {
 
 	@ConfigSection(

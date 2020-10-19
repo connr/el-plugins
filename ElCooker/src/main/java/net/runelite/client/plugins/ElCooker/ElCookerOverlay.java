@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.cooker;
+package net.runelite.client.plugins.ElCooker;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -22,16 +22,16 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
 @Slf4j
 @Singleton
-class cookerOverlay extends OverlayPanel
+class ElCookerOverlay extends OverlayPanel
 {
-	private final cookerPlugin plugin;
-	private final cookerConfiguration config;
+	private final ElCookerPlugin plugin;
+	private final ElCookerConfiguration config;
 
 	String timeFormat;
 	private String infoStatus = "Starting...";
 
 	@Inject
-	private cookerOverlay(final Client client, final cookerPlugin plugin, final cookerConfiguration config)
+	private ElCookerOverlay(final Client client, final ElCookerPlugin plugin, final ElCookerConfiguration config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.DYNAMIC);

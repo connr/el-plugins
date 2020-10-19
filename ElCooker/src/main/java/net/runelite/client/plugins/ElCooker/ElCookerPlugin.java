@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.cooker;
+package net.runelite.client.plugins.ElCooker;
 
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
@@ -48,7 +48,7 @@ import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
-import static net.runelite.client.plugins.cooker.cookerState.*;
+import static net.runelite.client.plugins.ElCooker.ElCookerState.*;
 
 
 @Extension
@@ -61,13 +61,13 @@ import static net.runelite.client.plugins.cooker.cookerState.*;
 	type = PluginType.SKILLING
 )
 @Slf4j
-public class cookerPlugin extends Plugin
+public class ElCookerPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private cookerConfiguration config;
+	private ElCookerConfiguration config;
 
 	@Inject
 	private BotUtils utils;
@@ -82,13 +82,13 @@ public class cookerPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private cookerOverlay overlay;
+	private ElCookerOverlay overlay;
 
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
 
-	cookerState state;
+	ElCookerState state;
 	GameObject targetObject;
 	NPC targetNpc;
 	MenuEntry targetMenu;
@@ -115,9 +115,9 @@ public class cookerPlugin extends Plugin
 
 
 	@Provides
-	cookerConfiguration provideConfig(ConfigManager configManager)
+	ElCookerConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(cookerConfiguration.class);
+		return configManager.getConfig(ElCookerConfiguration.class);
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public class cookerPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("cooker"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElCooker"))
 		{
 			return;
 		}
@@ -178,7 +178,7 @@ public class cookerPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("cooker"))
+		if (!event.getGroup().equals("ElCooker"))
 		{
 			return;
 		}
@@ -215,32 +215,31 @@ public class cookerPlugin extends Plugin
 
 	private void interactCooker()
 	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,config.rangeObjectId());
-		if (targetObject != null)
-		{
-			targetMenu = new MenuEntry("", "", targetObject.getId(), 3,
-					targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
-		}
-		else
-		{
-			log.info("Cooker is null.");
+		targetObject = utils.findNearestGameObjectWithin(client.getLocalPlayer().getWorldLocation(),25,config.rangeObjectId());
+		if(targetObject!=null){
+			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setModifiedMenuEntry(targetMenu,config.rawFoodId(),utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),1);
+			if(targetObject.getConvexHull()!=null) {
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			} else {
+				utils.delayMouseClick(new Point(0,0),sleepDelay());
+			}
+		} else {
+			utils.sendGameMessage("cooker is null.");
 		}
 	}
 
 	private void interactFire()
 	{
-		if(firstTime){
-			targetMenu = new MenuEntry("Use","Use",config.rawFoodId(),38,utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),9764864,false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(utils.getInventoryWidgetItem(config.rawFoodId()).getCanvasBounds(), sleepDelay());
-			firstTime=false;
-		} else {
-			targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
-			targetMenu = new MenuEntry("Use","<col=ff9040>Raw shark<col=ffffff> -> <col=ffff>Fire",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
+		if(targetObject!=null){
+			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setModifiedMenuEntry(targetMenu,config.rawFoodId(),utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),1);
+			if(targetObject.getConvexHull()!=null) {
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			} else {
+				utils.delayMouseClick(new Point(0,0),sleepDelay());
+			}
 		}
 	}
 
@@ -271,7 +270,7 @@ public class cookerPlugin extends Plugin
 		}
 	}
 
-	private cookerState getBankState()
+	private ElCookerState getBankState()
 	{
 		if (startRaw == 0) {
 			startRaw=utils.getBankItemWidget(config.rawFoodId()).getItemQuantity();
@@ -297,8 +296,15 @@ public class cookerPlugin extends Plugin
 		return UNHANDLED_STATE;
 	}
 
-	public cookerState getState()
+	public ElCookerState getState()
 	{
+		if(client.getLocalPlayer().getAnimation()==897) {
+			if(utils.inventoryContains(config.rawFoodId())){
+				timeout=3;
+			} else {
+				timeout=0;
+			}
+		}
 		if (timeout > 0)
 		{
 			return TIMEOUT;
@@ -324,7 +330,7 @@ public class cookerPlugin extends Plugin
 		}
 		if (utils.inventoryFull()) //if invent is not full
 		{
-			return getCookerState();
+			return getElCookerState();
 		}
 		return UNHANDLED_STATE;
 	}
@@ -407,13 +413,14 @@ public class cookerPlugin extends Plugin
 		}
 	}
 
-	private cookerState getCookerState()
+	private ElCookerState getElCookerState()
 	{
 		log.info("getting cooker state");
 		if(utils.inventoryContains(config.rawFoodId()))
 		{
 			if(client.getWidget(270,15)!=null){
 				if(client.getWidget(270,15).getName().equals("<col=ff9040>Cooked karambwan</col>")){
+					timeout=3;
 					targetMenu=new MenuEntry("","",1,57,-1,17694735,false);
 					utils.setMenuEntry(targetMenu);
 					if(client.getWidget(270,15).getBounds()!=null){
@@ -425,6 +432,7 @@ public class cookerPlugin extends Plugin
 			}
 			if(client.getWidget(270,5)!=null){
 				if(client.getWidget(270,5).getText().equals("How many would you like to cook?")){
+					timeout=3;
 					targetMenu=new MenuEntry("","",1,57,-1,17694734,false);
 					utils.setMenuEntry(targetMenu);
 					if(client.getWidget(270,5).getBounds()!=null){

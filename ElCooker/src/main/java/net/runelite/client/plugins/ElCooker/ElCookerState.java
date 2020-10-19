@@ -1,6 +1,6 @@
-package net.runelite.client.plugins.cooker;
+package net.runelite.client.plugins.ElCooker;
 
-public enum cookerState
+public enum ElCookerState
 {
 	ANIMATING,
 	FIND_OBJECT,
