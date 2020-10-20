@@ -275,10 +275,12 @@ public class ElTickCookerPlugin extends Plugin
 
 	private ElTickCookerState getBankState()
 	{
-		if (startRaw == 0) {
-			startRaw=utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
+		if(utils.getBankItemWidget(rawKarambwanId)!=null) {
+			if (startRaw == 0) {
+				startRaw = utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
+			}
+			currentRaw = utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
 		}
-		currentRaw = utils.getBankItemWidget(rawKarambwanId).getItemQuantity();
 		if(utils.inventoryEmpty()){
 			return WITHDRAW_ITEMS;
 		}
