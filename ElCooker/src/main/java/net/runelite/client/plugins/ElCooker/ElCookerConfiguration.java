@@ -235,11 +235,25 @@ public interface ElCookerConfiguration extends Config
 	}
 
 	@ConfigItem(
+			keyName = "seaweedMode",
+			name = "Giant Seaweed",
+			description = "Tick this to use giant seaweed.",
+			position = 69,
+			section = "cookerTitle"
+	)
+	default boolean seaweedMode()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 			keyName = "rawFoodId",
 			name = "Raw Food ID",
 			description = "Enter your raw food ID here.",
 			position = 70,
-			section = "cookerTitle"
+			section = "cookerTitle",
+			hidden=false,
+			hide="seaweedMode"
 	)
 	default int rawFoodId()
 	{

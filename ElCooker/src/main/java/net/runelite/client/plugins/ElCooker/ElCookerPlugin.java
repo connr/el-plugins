@@ -98,6 +98,7 @@ public class ElCookerPlugin extends Plugin
 	Player player;
 	boolean firstTime;
 	int opcode;
+	Rectangle clickBounds;
 	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
 
 	WorldPoint HOSIDIUS_BANK = new WorldPoint(1676,3615,0);
@@ -218,7 +219,11 @@ public class ElCookerPlugin extends Plugin
 		targetObject = utils.findNearestGameObjectWithin(client.getLocalPlayer().getWorldLocation(),25,config.rangeObjectId());
 		if(targetObject!=null){
 			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setModifiedMenuEntry(targetMenu,config.rawFoodId(),utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),1);
+			if(config.seaweedMode()){
+				utils.setModifiedMenuEntry(targetMenu,21504,utils.getInventoryWidgetItem(21504).getIndex(),1);
+			} else {
+				utils.setModifiedMenuEntry(targetMenu,config.rawFoodId(),utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),1);
+			}
 			if(targetObject.getConvexHull()!=null) {
 				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 			} else {
@@ -234,7 +239,11 @@ public class ElCookerPlugin extends Plugin
 		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(),25,26185);
 		if(targetObject!=null){
 			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setModifiedMenuEntry(targetMenu,config.rawFoodId(),utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),1);
+			if(config.seaweedMode()){
+				utils.setModifiedMenuEntry(targetMenu,21504,utils.getInventoryWidgetItem(21504).getIndex(),1);
+			} else {
+				utils.setModifiedMenuEntry(targetMenu,config.rawFoodId(),utils.getInventoryWidgetItem(config.rawFoodId()).getIndex(),1);
+			}
 			if(targetObject.getConvexHull()!=null) {
 				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 			} else {
@@ -273,25 +282,51 @@ public class ElCookerPlugin extends Plugin
 	private ElCookerState getBankState()
 	{
 		if (startRaw == 0) {
-			startRaw=utils.getBankItemWidget(config.rawFoodId()).getItemQuantity();
+			if(config.seaweedMode()){
+				startRaw=utils.getBankItemWidget(21504).getItemQuantity();
+			} else {
+				startRaw=utils.getBankItemWidget(config.rawFoodId()).getItemQuantity();
+			}
+
 		}
-		currentRaw = utils.getBankItemWidget(config.rawFoodId()).getItemQuantity();
+		if(config.seaweedMode()){
+			currentRaw = utils.getBankItemWidget(21504).getItemQuantity();
+		} else {
+			currentRaw = utils.getBankItemWidget(config.rawFoodId()).getItemQuantity();
+		}
+
 		if(utils.inventoryEmpty()){
 			return WITHDRAW_ITEMS;
 		}
-		if(!utils.inventoryFull() && !utils.inventoryEmpty()){
-			return DEPOSIT_ITEMS;
+		if(!config.seaweedMode()){
+			if(!utils.inventoryFull() && !utils.inventoryEmpty()){
+				return DEPOSIT_ITEMS;
+			}
 		}
 		if(utils.inventoryContains(config.rawFoodId())){ //inventory contains raw food
 			if(utils.getInventoryItemCount(config.rawFoodId(),false)==28){ //contains 28 raw food
 				return FIND_OBJECT;
 			}
 		}
-		if(!utils.inventoryContains(config.rawFoodId())){ //inventory doesnt contain raw food
-			return DEPOSIT_ITEMS;
-		}
-		if(!utils.bankContains(config.rawFoodId(),28)){
-			return MISSING_ITEMS;
+		if(config.seaweedMode()){
+			if(!utils.inventoryContains(21504)){ //inventory doesnt contain raw food
+				return DEPOSIT_ITEMS;
+			}
+			if(!utils.bankContains(21504,4)){
+				return MISSING_ITEMS;
+			}
+			if(utils.inventoryContains(21504)){ //inventory contains raw food
+				if(utils.getInventoryItemCount(21504,false)==4){ //contains 28 raw food
+					return FIND_OBJECT;
+				}
+			}
+		} else {
+			if(!utils.inventoryContains(config.rawFoodId())){ //inventory doesnt contain raw food
+				return DEPOSIT_ITEMS;
+			}
+			if(!utils.bankContains(config.rawFoodId(),28)){
+				return MISSING_ITEMS;
+			}
 		}
 		return UNHANDLED_STATE;
 	}
@@ -324,15 +359,7 @@ public class ElCookerPlugin extends Plugin
 		if(utils.isBankOpen()){ //if bank is open
 			return getBankState(); //check bank state
 		}
-		if (!utils.inventoryFull()) //if invent is not full
-		{
-			return FIND_BANK; //find a bank
-		}
-		if (utils.inventoryFull()) //if invent is not full
-		{
-			return getElCookerState();
-		}
-		return UNHANDLED_STATE;
+		return getElCookerState();
 	}
 
 	@Subscribe
@@ -396,6 +423,11 @@ public class ElCookerPlugin extends Plugin
 					timeout = tickDelay();
 					break;
 				case WITHDRAW_ITEMS:
+					if(config.seaweedMode()){
+						withdrawX(21504);
+						timeout = 2+tickDelay();
+						break;
+					}
 					utils.withdrawAllItem(config.rawFoodId());
 					timeout = tickDelay();
 					break;
@@ -444,6 +476,21 @@ public class ElCookerPlugin extends Plugin
 			} else {
 				return FIND_OBJECT;
 			}
+		} else if(utils.inventoryContains(21504)) {
+			if(client.getWidget(270,5)!=null){
+				if(client.getWidget(270,5).getText().equals("How many would you like to cook?")){
+					timeout=3;
+					targetMenu=new MenuEntry("","",1,57,-1,17694734,false);
+					utils.setMenuEntry(targetMenu);
+					if(client.getWidget(270,5).getBounds()!=null){
+						utils.delayMouseClick(client.getWidget(270,5).getBounds(), sleepDelay());
+					} else {
+						utils.delayMouseClick(new Point(0,0), sleepDelay());
+					}
+				}
+			} else {
+				return FIND_OBJECT;
+			}
 		} else {
 			return FIND_BANK;
 		}
@@ -455,6 +502,18 @@ public class ElCookerPlugin extends Plugin
 		log.info(event.toString());
 		if(config.valueFinder()){
 			utils.sendGameMessage("Id: " + event.getIdentifier() + ", Op Code: " + event.getOpcode() + ".");
+		}
+	}
+
+	private void withdrawX(int ID){
+		if(client.getVarbitValue(3960)!=4){
+			utils.withdrawItemAmount(ID,4);
+			timeout+=3;
+		} else {
+			targetMenu = new MenuEntry("", "", (client.getVarbitValue(6590) == 3) ? 1 : 5, MenuOpcode.CC_OP.getId(), utils.getBankItemWidget(ID).getIndex(), 786444, false);
+			utils.setMenuEntry(targetMenu);
+			clickBounds = utils.getBankItemWidget(ID).getBounds()!=null ? utils.getBankItemWidget(ID).getBounds() : new Rectangle(client.getCenterX() - 50, client.getCenterY() - 50, 100, 100);
+			utils.delayMouseClick(clickBounds,sleepDelay());
 		}
 	}
 }
