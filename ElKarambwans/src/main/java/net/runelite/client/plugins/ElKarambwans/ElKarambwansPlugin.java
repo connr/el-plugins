@@ -147,7 +147,7 @@ public class ElKarambwansPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("karambwanfisher"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElKarambwans"))
 		{
 			return;
 		}
@@ -176,7 +176,7 @@ public class ElKarambwansPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("karambwanfisher"))
+		if (!event.getGroup().equals("ElKarambwans"))
 		{
 			return;
 		}
