@@ -1,0 +1,20 @@
+package net.runelite.client.plugins.ElMessHall;
+
+public enum ElMessHallState
+{
+	ANIMATING,
+	FIND_OBJECT,
+	MISSING_ITEMS,
+	MOVING,
+	TIMEOUT,
+	BANK_NOT_FOUND,
+	FIND_BANK,
+	DEPOSIT_ITEMS,
+	HANDLE_BREAK,
+	UNHANDLED_STATE,
+	WITHDRAW_ITEMS,
+	GET_KNIFE,
+	GET_BOWL,
+	GET_FLOUR,
+	COOK_WIDGET;
+}

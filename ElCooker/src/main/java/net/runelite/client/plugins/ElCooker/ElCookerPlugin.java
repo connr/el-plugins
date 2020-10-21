@@ -272,7 +272,7 @@ public class ElCookerPlugin extends Plugin
 	{
 		targetNpc = utils.findNearestNpcWithin(player.getWorldLocation(),5, Collections.singleton(3194));
 		if(targetNpc!=null){
-			targetMenu = new MenuEntry("Bank", "<col=ffff00>Emerald Benedict", 15682, 11,
+			targetMenu = new MenuEntry("Bank", "<col=ffff00>Emerald Benedict", targetNpc.getIndex(), 11,
 					0, 0, false);
 			utils.setMenuEntry(targetMenu);
 			utils.delayMouseClick(targetNpc.getConvexHull().getBounds(), sleepDelay());
