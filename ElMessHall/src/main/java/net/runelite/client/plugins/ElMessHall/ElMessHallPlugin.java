@@ -171,7 +171,7 @@ public class ElMessHallPlugin extends Plugin
 		currentRaw=0;
 		firstTime=true;
 		clientTickDelay=0;
-
+		pizzaProgress=0;
 	}
 
 	@Subscribe
@@ -319,10 +319,6 @@ public class ElMessHallPlugin extends Plugin
 	@Subscribe
 	private void onGameTick(GameTick tick)
 	{
-		if(quickHopTargetWorld!=null){
-			client.hopToWorld(quickHopTargetWorld);
-			resetQuickHopper();
-		}
 		if (!startMessHall || chinBreakHandler.isBreakActive(this))
 		{
 			return;
@@ -735,7 +731,8 @@ public class ElMessHallPlugin extends Plugin
 		}
 	}
 
-	private void hopWorlds(){
+	private void hopWorlds()
+	{
 		hop(false);
 		timeout=6;
 		pizzaProgress=1;
@@ -862,8 +859,14 @@ public class ElMessHallPlugin extends Plugin
 		rsWorld.setLocation(world.getLocation());
 		rsWorld.setTypes(WorldUtil.toWorldTypes(world.getTypes()));
 
+
+
 		quickHopTargetWorld = rsWorld;
 		displaySwitcherAttempts = 0;
+
+		client.openWorldHopper();
+		client.hopToWorld(quickHopTargetWorld);
+		resetQuickHopper();
 	}
 
 	private void resetQuickHopper()
