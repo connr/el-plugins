@@ -54,12 +54,15 @@ import net.runelite.http.api.worlds.WorldType;
 import org.pf4j.Extension;
 import com.owain.chinbreakhandler.ChinBreakHandler;
 import java.awt.event.KeyEvent;
+import java.util.function.Function;
+
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginManager;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.plugins.botutils.BotUtils;
 import static net.runelite.client.plugins.ElMessHall.ElMessHallState.*;
 
@@ -103,8 +106,11 @@ public class ElMessHallPlugin extends Plugin
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
+	@Inject
+	private ClientThread clientThread;
 
-	private net.runelite.api.World quickHopTargetWorld;
+
+	private net.runelite.api.World quickHopTargetWorld = null;
 	private int displaySwitcherAttempts = 0;
 
 	ElMessHallState state;
@@ -313,6 +319,10 @@ public class ElMessHallPlugin extends Plugin
 	@Subscribe
 	private void onGameTick(GameTick tick)
 	{
+		if(quickHopTargetWorld!=null){
+			client.hopToWorld(quickHopTargetWorld);
+			resetQuickHopper();
+		}
 		if (!startMessHall || chinBreakHandler.isBreakActive(this))
 		{
 			return;
@@ -854,8 +864,6 @@ public class ElMessHallPlugin extends Plugin
 
 		quickHopTargetWorld = rsWorld;
 		displaySwitcherAttempts = 0;
-		client.hopToWorld(quickHopTargetWorld);
-		resetQuickHopper();
 	}
 
 	private void resetQuickHopper()

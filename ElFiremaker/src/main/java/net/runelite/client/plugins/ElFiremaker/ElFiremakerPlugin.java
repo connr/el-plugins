@@ -135,7 +135,12 @@ public class ElFiremakerPlugin extends Plugin
 
 	private int tickDelay()
 	{
-		return (int) utils.randomDelay(false,config.tickDelayMin(),config.tickDelayMax(),config.tickDelayDev(),config.tickDelayTarg());
+		if(config.customTickDelays()){
+			return (int) utils.randomDelay(false,config.tickDelayMin(),config.tickDelayMax(),config.tickDelayDev(),config.tickDelayTarg());
+		} else {
+			return (int) utils.randomDelay(false,2,3,1,3);
+		}
+
 	}
 
 	@Subscribe
