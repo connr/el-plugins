@@ -77,6 +77,7 @@ public class ElZMIPlugin extends Plugin
 	int clientTickCounter;
 	boolean clientClick;
 	int craftingTimer;
+	NPC targetNPC;
 
 	// Provides our config
 	@Provides
@@ -360,9 +361,10 @@ public class ElZMIPlugin extends Plugin
 
 	private void openEniolaBank()
 	{
-		if (utils.getNPCs(8132).size()!= 0) /* Hacky way to check if we are near Eniola to bank */
+		targetNPC = utils.findNearestNpc(8132);
+		if (targetNPC!=null)
 		{
-			targetMenu = new MenuEntry("Bank", "<col=ffff00>Eniola", 3220, 9, 0, 0, false);
+			targetMenu = new MenuEntry("Bank", "<col=ffff00>Eniola", targetNPC.getIndex(), 9, 0, 0, false);
 			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 		}
 		else 
