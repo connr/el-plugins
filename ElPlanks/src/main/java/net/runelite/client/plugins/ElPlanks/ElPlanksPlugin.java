@@ -351,7 +351,7 @@ public class ElPlanksPlugin extends Plugin
 		targetObject = utils.findNearestGameObject(10777);
 		if(targetObject!=null){
 			targetMenu = new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			if (targetObject.getConvexHull().getBounds() != null) {
+			if (targetObject.getConvexHull() != null) {
 				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 			} else {
 				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
