@@ -122,9 +122,9 @@ public class ElMessHallPlugin extends Plugin
 	LocalPoint beforeLoc;
 	Player player;
 	boolean firstTime;
-	int rawKarambwanId = 3142;
 	int clientTickDelay;
 	int pizzaProgress;
+	int stewProgress;
 
 	int timeout = 0;
 	long sleepLength;
@@ -240,22 +240,6 @@ public class ElMessHallPlugin extends Plugin
 		return tickLength;
 	}
 
-	private void interactCooker()
-	{
-		//targetObject = utils.findNearestGameObjectWithin(client.getLocalPlayer().getWorldLocation(),25,config.rangeObjectId());
-		if(targetObject!=null){
-			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setModifiedMenuEntry(targetMenu,rawKarambwanId,utils.getInventoryWidgetItem(rawKarambwanId).getIndex(),1);
-			if(targetObject.getConvexHull()!=null) {
-				utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
-			} else {
-				utils.delayMouseClick(new Point(0,0),sleepDelay());
-			}
-		} else {
-			utils.sendGameMessage("cooker is null.");
-		}
-	}
-
 	public ElMessHallState getState()
 	{
 		if (timeout > 0)
@@ -277,6 +261,10 @@ public class ElMessHallPlugin extends Plugin
 		switch (config.type()){
 			case PINEAPPLE_PIZZA:
 				return getPizzaState();
+			case STEW:
+				return getStewState();
+			case MEAT_PIE:
+				return getPieState();
 			default:
 				return UNHANDLED_STATE;
 		}
@@ -290,30 +278,55 @@ public class ElMessHallPlugin extends Plugin
 		}
 		if(client.getWidget(219,1)!=null){
 			if(!client.getWidget(219,1).isHidden()){
-				utils.pressKey('2');
+				switch (config.type()){
+					case PINEAPPLE_PIZZA:
+						utils.pressKey('2');
+						break;
+					case MEAT_PIE:
+						utils.pressKey('1');
+						break;
+				}
 			}
 		}
 		if(clientTickDelay>0){
 			clientTickDelay--;
 			return;
 		}
-		switch(pizzaProgress){
-			case 4:
-				makeDough();
+		switch(config.type()) {
+			case PINEAPPLE_PIZZA:
+				switch (pizzaProgress) {
+					case 4:
+						makeDough();
+						break;
+					case 7:
+						addTomatoes();
+						break;
+					case 9:
+						addCheese();
+						break;
+					case 12:
+						cutPineapples();
+						break;
+					case 13:
+						addPineapples();
+						break;
+				}
 				break;
-			case 7:
-				addTomatoes();
-				break;
-			case 9:
-				addCheese();
-				break;
-			case 12:
-				cutPineapples();
-				break;
-			case 13:
-				addPineapples();
+			case MEAT_PIE:
+				switch (pizzaProgress) {
+					case 3:
+						makePastryDough();
+						break;
+					case 6:
+						makePieShell();
+						break;
+					case 9:
+						makeUncookedPies();
+						break;
+				}
 				break;
 		}
+
 	}
 
 	@Subscribe
@@ -340,9 +353,6 @@ public class ElMessHallPlugin extends Plugin
 					utils.handleRun(30, 20);
 					timeout--;
 					break;
-				case FIND_OBJECT:
-					interactCooker();
-					break;
 				case MISSING_ITEMS:
 					startMessHall = false;
 					utils.sendGameMessage("OUT OF FOOD");
@@ -358,14 +368,6 @@ public class ElMessHallPlugin extends Plugin
 					firstTime=true;
 					utils.handleRun(30, 20);
 					timeout = 1+tickDelay();
-					break;
-				case DEPOSIT_ITEMS:
-					utils.depositAll();
-					timeout = tickDelay();
-					break;
-				case WITHDRAW_ITEMS:
-					utils.withdrawAllItem(rawKarambwanId);
-					timeout = tickDelay();
 					break;
 			}
 		}
@@ -391,10 +393,10 @@ public class ElMessHallPlugin extends Plugin
 				getKnife();
 				break;
 			case 1:
-				getFlour();
+				getFlour(13);
 				break;
 			case 2:
-				getBowls();
+				getBowls(13);
 				break;
 			case 3:
 				fillBowls();
@@ -439,6 +441,69 @@ public class ElMessHallPlugin extends Plugin
 		 return UNHANDLED_STATE;
 	}
 
+	private ElMessHallState getPieState()
+	{
+		/*if(utils.inventoryEmpty() && pizzaProgress!=12){
+			pizzaProgress=0;
+		}*/
+		switch (pizzaProgress) {
+			case 0:
+				getFlour(14);
+				break;
+			case 1:
+				getBowls(14);
+				break;
+			case 2:
+				fillBowls();
+				break;
+			case 3:
+				//makePastryDough();
+				break;
+			case 4:
+				ridBowls();
+				break;
+			case 5:
+				getDish(14);
+				break;
+			case 6:
+				//makePieShell();
+				break;
+			case 7:
+				getRawMeat();
+				break;
+			case 8:
+				cookMeat();
+				break;
+			case 9:
+				//makeUncookedPies();
+				break;
+			case 10:
+				cookPies();
+				break;
+			case 11:
+				servePies();
+				break;
+			case 12:
+				log.info("hopping worlds");
+				hopWorlds();
+				break;
+		}
+		return UNHANDLED_STATE;
+	}
+
+	private ElMessHallState getStewState()
+	{
+		if(utils.inventoryEmpty()){
+			pizzaProgress=0;
+		}
+		switch (pizzaProgress) {
+			case 0:
+				getFlour(14);
+				break;
+		}
+		return UNHANDLED_STATE;
+	}
+
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
@@ -467,16 +532,16 @@ public class ElMessHallPlugin extends Plugin
 		}
 	}
 
-	private void getFlour(){
+	private void getFlour(int amount){
 		if(client.getWidget(149,0)==null || client.getWidget(149,0).isHidden()){
 			targetMenu=new MenuEntry("","",1,57,-1,10551353,false);
 			utils.delayMouseClick(client.getWidget(161,64).getBounds(),sleepDelay());
 			return;
 		}
-		if(!utils.inventoryItemContainsAmount(1923,13,false,true)){
+		if(!utils.inventoryItemContainsAmount(1923,amount,false,true)){
 			if(client.getWidget(162,45)!=null&&!client.getWidget(162,45).isHidden()){
 				client.setVar(VarClientInt.INPUT_TYPE,7);
-				client.setVar(VarClientStr.INPUT_TEXT,String.valueOf(13-utils.getInventoryItemCount(1923,false)));
+				client.setVar(VarClientStr.INPUT_TEXT,String.valueOf(amount-utils.getInventoryItemCount(1923,false)));
 				client.runScript(681);
 				client.runScript(ScriptID.MESSAGE_LAYER_CLOSE);
 			}else if(client.getWidget(242,3)!=null&&!client.getWidget(242,3).isHidden()){
@@ -495,11 +560,11 @@ public class ElMessHallPlugin extends Plugin
 		}
 	}
 
-	private void getBowls(){
-		if(!utils.inventoryItemContainsAmount(13397,13,false,true)) {
+	private void getBowls(int amount){
+		if(!utils.inventoryItemContainsAmount(13397,amount,false,true)) {
 			if (client.getWidget(162, 45) != null && !client.getWidget(162, 45).isHidden()) {
 				client.setVar(VarClientInt.INPUT_TYPE, 7);
-				client.setVar(VarClientStr.INPUT_TEXT, String.valueOf(13 - utils.getInventoryItemCount(13397, false)));
+				client.setVar(VarClientStr.INPUT_TEXT, String.valueOf(amount - utils.getInventoryItemCount(13397, false)));
 				client.runScript(681);
 				client.runScript(ScriptID.MESSAGE_LAYER_CLOSE);
 			} else if (client.getWidget(242, 3) != null && !client.getWidget(242, 3).isHidden()) {
@@ -512,6 +577,34 @@ public class ElMessHallPlugin extends Plugin
 				}
 			} else {
 				targetObject = utils.findNearestGameObject(27375);
+				if (targetObject != null) {
+					targetMenu = new MenuEntry("", "", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+					utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+				}
+				timeout++;
+			}
+		} else {
+			pizzaProgress++;
+		}
+	}
+
+	private void getDish(int amount){
+		if(!utils.inventoryItemContainsAmount(13400,amount,false,true)) {
+			if (client.getWidget(162, 45) != null && !client.getWidget(162, 45).isHidden()) {
+				client.setVar(VarClientInt.INPUT_TYPE, 7);
+				client.setVar(VarClientStr.INPUT_TEXT, String.valueOf(amount - utils.getInventoryItemCount(13400, false)));
+				client.runScript(681);
+				client.runScript(ScriptID.MESSAGE_LAYER_CLOSE);
+			} else if (client.getWidget(242, 3) != null && !client.getWidget(242, 3).isHidden()) {
+				if (client.getWidget(242, 3).getChild(0).getName().contains("flour")) {
+					targetMenu = new MenuEntry("", "", 1, 57, 11, 15859713, false);
+					utils.delayMouseClick(client.getWidget(242, 1).getChild(11).getBounds(), sleepDelay());
+				} else {
+					targetMenu = new MenuEntry("", "", 5, 57, 0, 15859715, false);
+					utils.delayMouseClick(client.getWidget(242, 3).getChild(0).getBounds(), sleepDelay());
+				}
+			} else {
+				targetObject = utils.findNearestGameObject(27376);
 				if (targetObject != null) {
 					targetMenu = new MenuEntry("", "", targetObject.getId(), 3, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 					utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
@@ -542,6 +635,19 @@ public class ElMessHallPlugin extends Plugin
 		if(utils.inventoryContains(1921)){
 			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
 			client.setSelectedItemSlot(14);
+			client.setSelectedItemID(1921);
+			targetMenu = new MenuEntry("","",13397,31,27,9764864,false);
+			utils.delayMouseClick(utils.getInventoryWidgetItem(13397).getCanvasBounds(),0);
+			clientTickDelay=15;
+		} else {
+			pizzaProgress++;
+		}
+	}
+
+	private void makePastryDough(){
+		if(utils.inventoryContains(1921)){
+			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+			client.setSelectedItemSlot(13);
 			client.setSelectedItemID(1921);
 			targetMenu = new MenuEntry("","",13397,31,27,9764864,false);
 			utils.delayMouseClick(utils.getInventoryWidgetItem(13397).getCanvasBounds(),0);
@@ -719,6 +825,19 @@ public class ElMessHallPlugin extends Plugin
 		}
 	}
 
+	private void makePieShell(){
+		if(utils.inventoryContains(13398)){
+			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+			client.setSelectedItemSlot(13);
+			client.setSelectedItemID(13398);
+			targetMenu = new MenuEntry("","",13400,31,27,9764864,false);
+			utils.delayMouseClick(utils.getInventoryWidgetItem(13400).getCanvasBounds(),0);
+			clientTickDelay=15;
+		} else {
+			pizzaProgress++;
+		}
+	}
+
 	private void serveFood(){
 		if(utils.inventoryContains(13412)){
 			targetObject=utils.findNearestGameObject(27378);
@@ -731,15 +850,100 @@ public class ElMessHallPlugin extends Plugin
 		}
 	}
 
+	private void getRawMeat(){
+		if(!utils.inventoryContains(13399)){
+			if (client.getWidget(162, 45) != null && !client.getWidget(162, 45).isHidden()) {
+				client.setVar(VarClientInt.INPUT_TYPE, 7);
+				client.setVar(VarClientStr.INPUT_TEXT, String.valueOf(14 - utils.getInventoryItemCount(13399, false)));
+				client.runScript(681);
+				client.runScript(ScriptID.MESSAGE_LAYER_CLOSE);
+			} else {
+				targetObject = utils.findNearestGameObject(27377);
+				if(targetObject!=null){
+					targetMenu = new MenuEntry("","",targetObject.getId(),4,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+					utils.delayMouseClick(targetObject.getConvexHull().getBounds(),0);
+				}
+			}
+		} else {
+			pizzaProgress++;
+		}
+	}
+
+	private void cookMeat(){
+		if(utils.inventoryContains(13399)){
+			if(client.getWidget(WidgetInfo.MULTI_SKILL_MENU)!=null && !client.getWidget(WidgetInfo.MULTI_SKILL_MENU).isHidden()){
+				utils.pressKey(KeyEvent.VK_SPACE);
+			} else {
+				targetObject=utils.findNearestGameObject(21302);
+				if(targetObject!=null){
+					client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+					client.setSelectedItemSlot(14);
+					client.setSelectedItemID(13399);
+					targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+					utils.delayMouseClick(targetObject.getConvexHull().getBounds(),0);
+				}
+			}
+		} else {
+			pizzaProgress++;
+		}
+	}
+
+	private void makeUncookedPies(){
+		if(utils.inventoryContains(13401)){
+			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+			client.setSelectedItemSlot(13);
+			client.setSelectedItemID(13401);
+			targetMenu = new MenuEntry("","",13413,31,27,9764864,false);
+			utils.delayMouseClick(utils.getInventoryWidgetItem(13413).getCanvasBounds(),0);
+			clientTickDelay=15;
+		} else {
+			pizzaProgress++;
+		}
+	}
+
+	private void cookPies(){
+		if(utils.inventoryContains(13402)){
+			if(client.getWidget(WidgetInfo.MULTI_SKILL_MENU)!=null && !client.getWidget(WidgetInfo.MULTI_SKILL_MENU).isHidden()){
+				utils.pressKey(KeyEvent.VK_SPACE);
+				timeout=5;
+			} else {
+				targetObject=utils.findNearestGameObject(21302);
+				if(targetObject!=null){
+					client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+					client.setSelectedItemSlot(13);
+					client.setSelectedItemID(13402);
+					targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+					utils.delayMouseClick(targetObject.getConvexHull().getBounds(),0);
+				}
+			}
+		} else {
+			pizzaProgress++;
+		}
+	}
+
+	private void servePies(){
+		if(utils.inventoryContains(13403)){
+			targetObject=utils.findNearestGameObject(27378);
+			if(targetObject!=null){
+				targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+				utils.delayMouseClick(targetObject.getConvexHull().getBounds(),0);
+			}
+		} else {
+			pizzaProgress++;
+		}
+	}
+
 	private void hopWorlds()
 	{
+		log.info("attempting to hop worlds (1)");
 		hop(false);
 		timeout=6;
-		pizzaProgress=1;
+		pizzaProgress=0;
 	}
 
 	private void hop(boolean previous)
 	{
+		log.info("attempting to hop worlds (2)");
 		WorldResult worldResult = worldService.getWorlds();
 		if (worldResult == null || client.getGameState() != GameState.LOGGED_IN)
 		{
@@ -836,12 +1040,15 @@ public class ElMessHallPlugin extends Plugin
 		}
 		else
 		{
+			log.info("attempting to hop worlds (3)");
 			hop(world.getId());
 		}
 	}
 
 	private void hop(int worldId)
 	{
+		log.info("attempting to hop worlds (4)");
+		log.info("attempting to hop to " + worldId);
 		WorldResult worldResult = worldService.getWorlds();
 		// Don't try to hop if the world doesn't exist
 		@SuppressWarnings("ConstantConditions")

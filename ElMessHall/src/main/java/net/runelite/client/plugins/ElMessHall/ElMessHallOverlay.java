@@ -62,6 +62,7 @@ class ElMessHallOverlay extends OverlayPanel
 			}
 		}
 		tableComponent.addRow("Status:", infoStatus);
+		tableComponent.addRow("Progress:", String.valueOf(plugin.pizzaProgress));
 
 		TableComponent tableDelayComponent = new TableComponent();
 		tableDelayComponent.setColumnAlignments(TableAlignment.LEFT, TableAlignment.RIGHT);
