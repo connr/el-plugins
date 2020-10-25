@@ -3,6 +3,7 @@ package net.runelite.client.plugins.ElAstrals;
 public enum ElAstralsState
 {
 	ANIMATING,
+	HANDLE_BREAK,
 	NULL_PLAYER,
 	TICK_TIMER,
 	MOVING,

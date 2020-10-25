@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.List;
 import static net.runelite.client.plugins.ElAstrals.ElAstralsState.*;
+import com.owain.chinbreakhandler.ChinBreakHandler;
 
 @Extension
 @PluginDependency(BotUtils.class)
@@ -56,6 +57,9 @@ public class ElAstralsPlugin extends Plugin
 	@Inject
 	private ElAstralsOverlay overlay;
 
+	@Inject
+	private ChinBreakHandler chinBreakHandler;
+
 
 
 	//plugin data
@@ -80,6 +84,7 @@ public class ElAstralsPlugin extends Plugin
 
 	WorldArea LUNAR_BANK = new WorldArea(new WorldPoint(2096,3916,0), new WorldPoint(2101,3920,0));
 	WorldArea FIRST_CLICK_AREA = new WorldArea(new WorldPoint(2123,3867,0), new WorldPoint(2132,3879,0));
+	WorldArea LUNAR_TELE_SPOT = new WorldArea(new WorldPoint(2105,3911,0), new WorldPoint(2114,3920,0));
 
 	WorldPoint FIRST_CLICK_POINT = new WorldPoint(2126,3873,0);
 
@@ -93,6 +98,7 @@ public class ElAstralsPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		chinBreakHandler.registerPlugin(this);
 		botTimer = Instant.now();
 		setValues();
 		startAstrals=false;
@@ -106,6 +112,7 @@ public class ElAstralsPlugin extends Plugin
 		setValues();
 		startAstrals=false;
 		log.info("Plugin stopped");
+		chinBreakHandler.unregisterPlugin(this);
 	}
 
 	@Subscribe
@@ -124,6 +131,7 @@ public class ElAstralsPlugin extends Plugin
 				targetMenu = null;
 				botTimer = Instant.now();
 				overlayManager.add(overlay);
+				chinBreakHandler.startPlugin(this);
 			} else {
 				shutDown();
 			}
@@ -160,6 +168,7 @@ public class ElAstralsPlugin extends Plugin
 			ESSENCE_ID = 7936;
 		}
 		firstClickOnAltar=false;
+		chinBreakHandler.stopPlugin(this);
 	}
 
 	@Subscribe
@@ -198,10 +207,12 @@ public class ElAstralsPlugin extends Plugin
 				}
 				break;
 			case OPENING_BANK:
-				if(runecraftProgress==17){
-					runecraftProgress++;
+				if(client.getLocalPlayer().getWorldArea().intersectsWith(LUNAR_TELE_SPOT) || client.getLocalPlayer().getWorldArea().intersectsWith(LUNAR_BANK) ){
+					if(runecraftProgress==17){
+						runecraftProgress++;
+					}
+					openLunarBank();
 				}
-				openLunarBank();
 				break;
 			case MISSING_REQUIRED:
 				withdrawRequiredItems();
@@ -214,6 +225,10 @@ public class ElAstralsPlugin extends Plugin
 					runecraftProgress++;
 				}
 				tickTimer=tickDelay();
+				break;
+			case HANDLE_BREAK:
+				chinBreakHandler.startBreak(this);
+				tickTimer = 10;
 				break;
 			case EMPTYING_POUCHES:
 				status = emptyPouches();
@@ -308,6 +323,10 @@ public class ElAstralsPlugin extends Plugin
 		}
 		if(utils.inventoryContainsAllOf(REQUIRED_ITEMS)){
 			if(runecraftProgress<8){
+				if (chinBreakHandler.shouldBreak(this))
+				{
+					return HANDLE_BREAK;
+				}
 				if(utils.inventoryContains(ASTRAL_ID)){
 					if(!utils.isBankOpen()){
 						return OPENING_BANK;
@@ -381,9 +400,13 @@ public class ElAstralsPlugin extends Plugin
 					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 					return DRINKING_STAM;
 				} else {
-					targetMenu = new MenuEntry("Withdraw-1","<col=ff9040>Stamina potion(1)</col>",1,57,utils.getBankItemWidget(12631).getIndex(),786444,false);
-					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-					return WITHDRAW_STAM;
+					if(utils.inventoryFull()) {
+						return DEPOSIT_INVENT;
+					} else {
+						targetMenu = new MenuEntry("Withdraw-1", "<col=ff9040>Stamina potion(1)</col>", 1, 57, utils.getBankItemWidget(12631).getIndex(), 786444, false);
+						utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+						return WITHDRAW_STAM;
+					}
 				}
 			} else if (checkRunEnergy()<25){
 				if(utils.inventoryContains(12631)){
@@ -391,10 +414,16 @@ public class ElAstralsPlugin extends Plugin
 					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 					return DRINKING_STAM;
 				} else {
-					targetMenu = new MenuEntry("Withdraw-1","<col=ff9040>Stamina potion(1)</col>",1,57,utils.getBankItemWidget(12631).getIndex(),786444,false);
-					utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-					return WITHDRAW_STAM;
+					if(utils.inventoryFull()) {
+						return DEPOSIT_INVENT;
+					} else {
+						targetMenu = new MenuEntry("Withdraw-1","<col=ff9040>Stamina potion(1)</col>",1,57,utils.getBankItemWidget(12631).getIndex(),786444,false);
+						utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
+						return WITHDRAW_STAM;
+					}
 				}
+			} else if(utils.inventoryContains(12631)){
+				return DEPOSIT_INVENT;
 			}
 		}
 		if(checkHitpoints()<config.minHealth()){
@@ -403,10 +432,17 @@ public class ElAstralsPlugin extends Plugin
 				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
 				return EATING_FOOD;
 			} else {
-				targetMenu = new MenuEntry("Withdraw-1","Withdraw-1",1,57,utils.getBankItemWidget(config.foodId()).getIndex(),786444,false);
-				utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-				return WITHDRAW_FOOD;
+				if(utils.inventoryFull()){
+					utils.depositAllExcept(REQUIRED_ITEMS);
+					return DEPOSIT_INVENT;
+				} else {
+					targetMenu = new MenuEntry("Withdraw-1", "Withdraw-1", 1, 57, utils.getBankItemWidget(config.foodId()).getIndex(), 786444, false);
+					utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+					return WITHDRAW_FOOD;
+				}
 			}
+		} else if(utils.inventoryContains(config.foodId())){
+			return DEPOSIT_INVENT;
 		}
 		if(!config.giantPouch()){
 			if(runecraftProgress==0){
@@ -550,15 +586,6 @@ public class ElAstralsPlugin extends Plugin
 	{
 		targetMenu = new MenuEntry("Cast", "<col=00ff00>Tele Group Moonclan</col>", 1, 57, -1, 14286956, false);
 		utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-	}
-
-	private void climbDownLadder()
-	{
-		GameObject targetObject = utils.findNearestGameObject(29635);
-		if(targetObject!=null){
-			targetMenu = new MenuEntry("Climb","<col=ffff>Ladder",targetObject.getId(),3,targetObject.getLocalLocation().getSceneX(),targetObject.getLocalLocation().getSceneY(),false);
-			utils.delayMouseClick(getRandomNullPoint(),sleepDelay());
-		}
 	}
 
 	private int checkRunEnergy()

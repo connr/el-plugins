@@ -23,13 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "2.0.0"
+version = "2.1.0"
 
 project.extra["PluginName"] = "El Astrals" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Crafts astrals for you" // This is the description that is used in the external plugin manager panel
 
 dependencies {
     compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
+    compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.16+")
 }
 
 tasks {
@@ -41,7 +42,8 @@ tasks {
                     "Plugin-Provider" to project.extra["PluginProvider"],
                     "Plugin-Dependencies" to
                             arrayOf(
-                                    "botutils-plugin"
+                                    "botutils-plugin",
+                                    "chinbreakhandler-plugin"
                             ).joinToString(),
                     "Plugin-Description" to project.extra["PluginDescription"],
                     "Plugin-License" to project.extra["PluginLicense"]
