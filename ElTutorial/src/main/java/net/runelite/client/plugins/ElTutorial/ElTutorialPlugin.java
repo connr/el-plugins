@@ -921,7 +921,11 @@ public class ElTutorialPlugin extends Plugin
 		targetNPC = utils.findNearestNpc(id);
 		if(targetNPC!=null){
 			targetMenu = new MenuEntry("","",targetNPC.getIndex(),9,0,0,false);
-			utils.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
+			if(targetNPC.getConvexHull()!=null){
+				utils.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
+			} else {
+				utils.delayMouseClick(getRandomNullPoint(), sleepDelay());
+			}
 		}
 	}
 

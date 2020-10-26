@@ -95,11 +95,15 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 	private Widget bankEniola = null;
 	private Widget ouraniaTele = null;
 
+	MenuEntry targetMenu;
+	GameObject targetObject;
+
 	int clientTickCounter;
 	boolean clientClick;
 
-	GameObject targetObject;
 	NPC targetNpc;
+
+	int currentWorld;
 
 
 	// Provides our config
@@ -118,10 +122,11 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 		setValues();
 		startTest=false;
 		log.info("Plugin started");
-		clientThread.invoke(this::addPickerWidget);
+		//clientThread.invoke(this::addPickerWidget);
 		//clientThread.invoke(this::addMeleeWidget);
 		clientThread.invoke(this::addOuraniaTeleWidget);
 		clientThread.invoke(this::addBankEniolaWidget);
+		currentWorld = client.getWorld();
 	}
 
 	@Override
@@ -133,7 +138,7 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 		setValues();
 		startTest=false;
 		log.info("Plugin stopped");
-		clientThread.invoke(this::removePickerWidget);
+		//clientThread.invoke(this::removePickerWidget);
 		//clientThread.invoke(this::removeMeleeWidget);
 		clientThread.invoke(this::removeOuraniaTeleWidget);
 		clientThread.invoke(this::removeBankEniolaWidget);
@@ -191,6 +196,12 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 	@Subscribe
 	private void onGameTick(GameTick gameTick)
 	{
+
+		if(client.getWorld()!=currentWorld){
+			addOuraniaTeleWidget();
+			addBankEniolaWidget();
+			currentWorld=client.getWorld();
+		}
 		clientTickCounter=0;
 		if (!startTest)
 		{
@@ -202,12 +213,16 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 			startTest = false;
 			return;
 		}
+
 		clientTickCounter=0;
 		status = checkPlayerStatus();
 		switch (status) {
 			case ANIMATING:
 			case NULL_PLAYER:
 			case TICK_TIMER:
+				break;
+			case PUSH:
+				hosidiusFavourFunction();
 				break;
 		}
 	}
@@ -438,30 +453,33 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event)
 	{
+		log.debug(event.toString());
+		if(targetMenu!=null){
+			event.consume();
+			client.invokeMenuAction(targetMenu.getOption(),targetMenu.getTarget(),targetMenu.getIdentifier(),targetMenu.getOpcode(),targetMenu.getParam0(),targetMenu.getParam1());
+			targetMenu=null;
+		}
 		log.info(event.toString());
 		if(event.getOption().equals("action3") && event.getTarget().equals("button3")){
 			event.consume();
-			targetObject = utils.findNearestGameObject(29631);
-			if(targetObject!=null){
-				client.invokeMenuAction("","",29631,3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY());
-			} else {
-				targetObject = utils.findNearestGameObject(29635);
-				if(targetObject!=null){
-					client.invokeMenuAction("","",29635,3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY());
-				}
+			targetNpc = utils.findNearestNpc(1560);
+			if(targetNpc!=null){
+				client.invokeMenuAction("","",targetNpc.getIndex(),11,0,0);
 			}
 			return;
 		} else if (event.getOption().equals("action2") && event.getTarget().equals("button2")){
 			event.consume();
-			client.invokeMenuAction("","",1,57,-1,14286991);
+			targetNpc = utils.findNearestNpc(1560);
+			if(targetNpc!=null){
+				client.invokeMenuAction("","",targetNpc.getIndex(),11,0,0);
+			}
 			return;
 		} else if (event.getOption().equals("action1") && event.getTarget().equals("button1")){
 			event.consume();
-			targetNpc = utils.findNearestNpc(8132);
-			if(targetNpc!=null){
-				client.invokeMenuAction("","",targetNpc.getIndex(),9,0,0);
+			targetObject = utils.findNearestGameObject(26707);
+			if(targetObject!=null){
+				client.invokeMenuAction("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY());
 			}
-			return;
 		}
 	}
 
@@ -481,14 +499,20 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 		if(player==null){
 			return NULL_PLAYER;
 		}
-		if(player.getPoseAnimation()!=813){
+		if(player.getPoseAnimation()!=808){
+			tickTimer=2;
 			return MOVING;
 		}
 
 		if(player.getAnimation()!=-1){
+			tickTimer=2;
 			return ANIMATING;
 		}
-		return UNKNOWN;
+		if(tickTimer>0){
+			tickTimer--;
+			return TICK_TIMER;
+		}
+		return PUSH;
 	}
 
 	private Point getRandomNullPoint()
@@ -570,5 +594,46 @@ public class ElTestPlugin extends Plugin implements MouseListener, KeyListener {
 	public void keyReleased(KeyEvent keyEvent) {
 		log.info("key released + " + keyEvent.getID());
 		log.info("key char + " + keyEvent.getKeyChar());
+	}
+
+	private void hosidiusFavourFunction(){
+		for(NPC npc : utils.getNPCs(6924)){
+			log.info(npc.getWorldLocation().toString());
+			if(npc.getWorldLocation().getY()==3551){
+				if(npc.getWorldLocation().getX()==1763){
+					log.info("checking");
+					if(!client.getLocalPlayer().getWorldLocation().equals(new WorldPoint(1762,3552,0))){
+						utils.walk(new WorldPoint(1762,3552,0),0,sleepDelay());
+						return;
+					} else {
+						utils.setMenuEntry(null);
+						targetMenu = new MenuEntry("","",npc.getIndex(),9,0,0,false);
+						utils.delayMouseClick(npc.getConvexHull().getBounds(),sleepDelay());
+						return;
+					}
+				} else if(npc.getWorldLocation().getX()==1777){
+					if(!client.getLocalPlayer().getWorldLocation().equals(new WorldPoint(1780,3552,0))){
+						utils.walk(new WorldPoint(1780,3552,0),0,sleepDelay());
+						return;
+					} else {
+						utils.setMenuEntry(null);
+						targetMenu = new MenuEntry("","",npc.getIndex(),9,0,0,false);
+						utils.delayMouseClick(npc.getConvexHull().getBounds(),sleepDelay());
+						return;
+					}
+				} else {
+					utils.setMenuEntry(null);
+					targetMenu = new MenuEntry("","",npc.getIndex(),9,0,0,false);
+					utils.delayMouseClick(npc.getConvexHull().getBounds(),sleepDelay());
+				}
+			}
+		}
+		for(NPC npc : utils.getNPCs(6925)){
+			if(npc.getWorldLocation().getY()==3551){
+				utils.setMenuEntry(null);
+				targetMenu = new MenuEntry("","",npc.getIndex(),9,0,0,false);
+				utils.delayMouseClick(npc.getConvexHull().getBounds(),sleepDelay());
+			}
+		}
 	}
 }

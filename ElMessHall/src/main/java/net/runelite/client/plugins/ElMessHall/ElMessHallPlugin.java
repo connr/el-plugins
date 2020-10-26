@@ -27,6 +27,7 @@ package net.runelite.client.plugins.ElMessHall;
 
 import com.google.inject.Provides;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import javax.inject.Inject;
@@ -889,7 +890,7 @@ public class ElMessHallPlugin extends Plugin
 	}
 
 	private void makeUncookedPies(){
-		if(utils.inventoryContains(13401)){
+		if(utils.inventoryContains(13413)){
 			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
 			client.setSelectedItemSlot(13);
 			client.setSelectedItemID(13401);
@@ -910,7 +911,7 @@ public class ElMessHallPlugin extends Plugin
 				targetObject=utils.findNearestGameObject(21302);
 				if(targetObject!=null){
 					client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
-					client.setSelectedItemSlot(13);
+					client.setSelectedItemSlot(0);
 					client.setSelectedItemID(13402);
 					targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
 					utils.delayMouseClick(targetObject.getConvexHull().getBounds(),0);

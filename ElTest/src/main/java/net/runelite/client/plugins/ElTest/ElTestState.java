@@ -30,5 +30,6 @@ public enum ElTestState
 	EMPTY_LARGE,
 	EMPTY_MEDIUM,
 	POUCH_DEGRADED,
-	UNKNOWN;
+	UNKNOWN,
+	PUSH;
 }
