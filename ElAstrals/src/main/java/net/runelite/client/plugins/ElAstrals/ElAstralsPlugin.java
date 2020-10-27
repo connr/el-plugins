@@ -212,6 +212,8 @@ public class ElAstralsPlugin extends Plugin
 						runecraftProgress++;
 					}
 					openLunarBank();
+				} else {
+					teleToMoonclan();
 				}
 				break;
 			case MISSING_REQUIRED:
