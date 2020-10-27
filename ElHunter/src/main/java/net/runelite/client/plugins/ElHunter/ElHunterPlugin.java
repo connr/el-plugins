@@ -270,7 +270,7 @@ public class ElHunterPlugin extends Plugin
 	private int checkRunEnergy()
 	{
 		try{
-			return Integer.parseInt(client.getWidget(160,23).getText());
+			return client.getEnergy();
 		} catch (Exception ignored) {
 
 		}

@@ -579,7 +579,7 @@ public class ElZMIPlugin extends Plugin
 	private int checkRunEnergy()
 	{
 		try{
-			return Integer.parseInt(client.getWidget(160,23).getText());
+			return client.getEnergy();
 		} catch (Exception ignored) {
 
 		}
