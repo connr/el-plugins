@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.6"
+version = "0.1.0"
 
 project.extra["PluginName"] = "El Mess Hall" // This is the name that is used in the external plugin manager panel
 project.extra["PluginDescription"] = "Completes the Mess Hall for you." // This is the description that is used in the external plugin manager panel
