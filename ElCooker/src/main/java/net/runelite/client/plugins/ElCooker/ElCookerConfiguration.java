@@ -231,7 +231,7 @@ public interface ElCookerConfiguration extends Config
 	)
 	default String instructions()
 	{
-		return "Cooks raw food. Doesn't currently work with NPCs to bank or fires to cook.";
+		return "Cooks raw food. Doesn't currently work with NPCs to bank.";
 	}
 
 	@ConfigItem(
@@ -323,8 +323,8 @@ public interface ElCookerConfiguration extends Config
 
 	@ConfigItem(
 			keyName = "rangeObjectId",
-			name = "Range Object Id",
-			description = "Enter the ID of a range. Will not work with fires.",
+			name = "Range/Fire Object Id",
+			description = "Enter the ID of a range or fire.",
 			position = 86,
 			hide = "roguesDen"
 	)

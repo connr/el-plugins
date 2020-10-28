@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Owain van Brakel <https:github.com/Owain94>
+ * Copyright (c) 2020, dekvall <https://github.com/dekvall>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,37 +22,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.client.plugins.ElHerbiboar;
 
-rootProject.name = "Elliott Plugins"
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.runelite.api.coords.WorldPoint;
 
-include(":ElAirs")
-include(":ElAstrals")
-include(":ElBankStander")
-include(":ElBarbarian")
-include(":ElBloods")
-include(":ElCooker")
-//include(":ElCosmics")
-include(":ElFiremaker")
-include(":ElGlassBlower")
-include(":ElHerbiboar")
-include(":ElHunter")
-include(":ElKarambwans")
-include(":ElMessHall")
-include(":ElPlanks")
-include(":ElSandstone")
-include(":ElSuperglass")
-include(":ElTeaks")
-include(":ElTest")
-include(":ElTickCooker")
-include(":ElTutorial")
-include(":ElZMI")
+@Getter
+@RequiredArgsConstructor
+enum ElHerbiboarStart
+{
+	MIDDLE(new WorldPoint(3686, 3870, 0)),
+	LEPRECHAUN(new WorldPoint(3705, 3830, 0)),
+	CAMP_ENTRANCE(new WorldPoint(3704, 3810, 0)),
+	GHOST_MUSHROOM(new WorldPoint(3695, 3800, 0)),
+	DRIFTWOOD(new WorldPoint(3751, 3850, 0)),
+	;
 
-for (project in rootProject.children) {
-    project.apply {
-        projectDir = file(name)
-        buildFileName = "$name.gradle.kts"
+	private final WorldPoint location;
 
-        require(projectDir.isDirectory) { "Project '${project.path} must have a $projectDir directory" }
-        require(buildFile.isFile) { "Project '${project.path} must have a $buildFile build script" }
-    }
+	static ElHerbiboarStart from(WorldPoint location)
+	{
+		for (final ElHerbiboarStart start : values())
+		{
+			if (start.getLocation().equals(location))
+			{
+				return start;
+			}
+		}
+		return null;
+	}
 }
