@@ -104,11 +104,11 @@ public class ElBloodsPlugin extends Plugin
 	WorldArea START_CHISELING_AREA = new WorldArea(new WorldPoint(1720, 3874, 0), new WorldPoint(1734, 3881, 0));
 
 
-	WorldArea FIRST_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1768,3894,0),new WorldPoint(1773,3899,0));
-	WorldPoint FIRST_CLICK_SOUL_ALTAR_POINT = new WorldPoint(1770,3896,0);
+	WorldArea FIRST_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1763,3894,0),new WorldPoint(1768,3899,0));
+	WorldPoint FIRST_CLICK_SOUL_ALTAR_POINT = new WorldPoint(1763,3896,0);
 
-	WorldArea SECOND_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1807,3889,0),new WorldPoint(1813,3894,0));
-	WorldPoint SECOND_CLICK_SOUL_ALTAR_POINT = new WorldPoint(1810,3891,0);
+	WorldArea SECOND_CLICK_SOUL_ALTAR_AREA = new WorldArea(new WorldPoint(1801,3890,0),new WorldPoint(1806,3895,0));
+	WorldPoint SECOND_CLICK_SOUL_ALTAR_POINT = new WorldPoint(1803,3892,0);
 
 	WorldPoint SOUL_ALTAR_POINT = new WorldPoint(1816,3856,0);
 
@@ -557,7 +557,7 @@ public class ElBloodsPlugin extends Plugin
 				break;
 			case WALK_SOUL_ALTAR_1:
 				if(player.getWorldArea().intersectsWith(DARK_ALTAR_AREA)){
-					utils.walk(FIRST_CLICK_SOUL_ALTAR_POINT,2,sleepDelay());
+					utils.walk(FIRST_CLICK_SOUL_ALTAR_POINT,1,sleepDelay());
 					break;
 				} else if(player.getWorldArea().intersectsWith(FIRST_CLICK_BLOOD_ALTAR_AREA)){
 					targetObject = utils.findNearestGameObject(27978);
@@ -590,7 +590,7 @@ public class ElBloodsPlugin extends Plugin
 				}
 				break;
 			case WALK_SOUL_ALTAR_2:
-				utils.walk(SECOND_CLICK_SOUL_ALTAR_POINT,2,sleepDelay());
+				utils.walk(SECOND_CLICK_SOUL_ALTAR_POINT,1,sleepDelay());
 				break;
 			case CHISEL_AT_ALTAR:
 			case CHISEL_WHILE_RUNNING:
