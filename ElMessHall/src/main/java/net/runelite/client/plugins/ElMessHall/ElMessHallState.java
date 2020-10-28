@@ -16,5 +16,6 @@ public enum ElMessHallState
 	GET_KNIFE,
 	GET_BOWL,
 	GET_FLOUR,
-	COOK_WIDGET;
+	COOK_WIDGET,
+	FIXING_TAB;
 }

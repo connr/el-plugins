@@ -258,6 +258,10 @@ public class ElMessHallPlugin extends Plugin
 		else if (chinBreakHandler.shouldBreak(this))
 		{
 			return HANDLE_BREAK;
+		} else if(client.getWidget(149,0)==null || client.getWidget(149,0).isHidden()){
+			targetMenu=new MenuEntry("","",1,57,-1,10551353,false);
+			utils.delayMouseClick(client.getWidget(161,64).getBounds(),sleepDelay());
+			return FIXING_TAB;
 		}
 		else {
 			switch (config.type()){
@@ -356,11 +360,6 @@ public class ElMessHallPlugin extends Plugin
 			{
 				utils.sendGameMessage("client must be set to resizable");
 				startMessHall = false;
-				return;
-			}
-			if(client.getWidget(149,0)==null || client.getWidget(149,0).isHidden()){
-				targetMenu=new MenuEntry("","",1,57,-1,10551353,false);
-				utils.delayMouseClick(client.getWidget(161,64).getBounds(),sleepDelay());
 				return;
 			}
 			state = getState();
@@ -581,17 +580,17 @@ public class ElMessHallPlugin extends Plugin
 			utils.delayMouseClick(client.getWidget(161,64).getBounds(),sleepDelay());
 			return;
 		}
-		if(!utils.inventoryItemContainsAmount(1923,amount,false,true)){
+		if(!utils.inventoryItemContainsAmount(13397,amount,false,true)){
 			if(client.getWidget(162,45)!=null&&!client.getWidget(162,45).isHidden()){
 				client.setVar(VarClientInt.INPUT_TYPE,7);
 				client.setVar(VarClientStr.INPUT_TEXT,String.valueOf(amount-utils.getInventoryItemCount(1923,false)));
 				client.runScript(681);
 				client.runScript(ScriptID.MESSAGE_LAYER_CLOSE);
 			}else if(client.getWidget(242,3)!=null&&!client.getWidget(242,3).isHidden()){
-				targetMenu=new MenuEntry("","",5,57,1,15859715,false);
+				targetMenu=new MenuEntry("","",5,57,0,15859715,false);
 				utils.delayMouseClick(client.getWidget(242,3).getChild(1).getBounds(),sleepDelay());
 			}else{
-				targetObject=utils.findNearestGameObject(27376);
+				targetObject=utils.findNearestGameObject(27375);
 				if(targetObject!=null){
 					targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
 					utils.delayMouseClick(targetObject.getConvexHull().getBounds(),sleepDelay());
@@ -703,12 +702,12 @@ public class ElMessHallPlugin extends Plugin
 	}
 
 	private void makeDough(){
-		if(utils.inventoryContains(1921)){
+		if(utils.inventoryContains(13397)){
 			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
 			client.setSelectedItemSlot(14);
-			client.setSelectedItemID(1921);
-			targetMenu = new MenuEntry("","",13397,31,27,9764864,false);
-			utils.delayMouseClick(utils.getInventoryWidgetItem(13397).getCanvasBounds(),0);
+			client.setSelectedItemID(13397);
+			targetMenu = new MenuEntry("","",1921,31,27,9764864,false);
+			utils.delayMouseClick(utils.getInventoryWidgetItem(1921).getCanvasBounds(),0);
 			clientTickDelay=15;
 		} else {
 			pizzaProgress++;
@@ -716,12 +715,12 @@ public class ElMessHallPlugin extends Plugin
 	}
 
 	private void makePastryDough(){
-		if(utils.inventoryContains(1921)){
+		if(utils.inventoryContains(13397)){
 			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
 			client.setSelectedItemSlot(13);
-			client.setSelectedItemID(1921);
-			targetMenu = new MenuEntry("","",13397,31,27,9764864,false);
-			utils.delayMouseClick(utils.getInventoryWidgetItem(13397).getCanvasBounds(),0);
+			client.setSelectedItemID(13397);
+			targetMenu = new MenuEntry("","",1921,31,27,9764864,false);
+			utils.delayMouseClick(utils.getInventoryWidgetItem(1921).getCanvasBounds(),0);
 			clientTickDelay=15;
 		} else {
 			pizzaProgress++;
@@ -948,7 +947,7 @@ public class ElMessHallPlugin extends Plugin
 				targetObject=utils.findNearestGameObject(21302);
 				if(targetObject!=null){
 					client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
-					client.setSelectedItemSlot(14);
+					client.setSelectedItemSlot(27);
 					client.setSelectedItemID(13399);
 					targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
 					utils.delayMouseClick(targetObject.getConvexHull().getBounds(),0);
