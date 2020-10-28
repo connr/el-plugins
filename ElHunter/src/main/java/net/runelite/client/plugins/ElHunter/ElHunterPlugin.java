@@ -454,7 +454,6 @@ public class ElHunterPlugin extends Plugin
 			return PICKING_UP;
 		} else {
 			if(utils.getLocalGameObjects(10,9373).size()+utils.getLocalGameObjects(10,9349).size()+utils.getLocalGameObjects(10,9345).size()==0){
-				utils.sendGameMessage(startPoint.toString());
 				if(client.getLocalPlayer().getWorldLocation().distanceTo2D(startPoint)>3){
 					utils.walk(startPoint,0,sleepDelay());
 					return WALKING;
