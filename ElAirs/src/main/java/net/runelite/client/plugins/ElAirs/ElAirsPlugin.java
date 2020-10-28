@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.ElTeaks;
+package net.runelite.client.plugins.ElAirs;
 
 import com.google.inject.Provides;
 import com.owain.chinbreakhandler.ChinBreakHandler;
@@ -48,26 +48,26 @@ import net.runelite.client.plugins.PluginType;
 import net.runelite.client.plugins.botutils.BotUtils;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
-import static net.runelite.client.plugins.ElTeaks.ElTeaksState.*;
+import static net.runelite.client.plugins.ElAirs.ElAirsState.*;
 
 
 @Extension
 @PluginDependency(BotUtils.class)
 @PluginDescriptor(
-	name = "El Teaks",
+	name = "El Airs",
 	enabledByDefault = false,
-	description = "Cuts and banks teaks.",
-	tags = {"cut, bank, teak, fossil, island, el"},
+	description = "Crafts at the air altar.",
+	tags = {"rune, craft, runecraft, air, el"},
 	type = PluginType.SKILLING
 )
 @Slf4j
-public class ElTeaksPlugin extends Plugin
+public class ElAirsPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private ElTeaksConfiguration config;
+	private ElAirsConfiguration config;
 
 	@Inject
 	private BotUtils utils;
@@ -82,13 +82,13 @@ public class ElTeaksPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private ElTeaksOverlay overlay;
+	private ElAirsOverlay overlay;
 
 	@Inject
 	private ChinBreakHandler chinBreakHandler;
 
 
-	ElTeaksState state;
+	ElAirsState state;
 	GameObject targetObject;
 	NPC targetNPC;
 	MenuEntry targetMenu;
@@ -108,9 +108,9 @@ public class ElTeaksPlugin extends Plugin
 
 
 	@Provides
-	ElTeaksConfiguration provideConfig(ConfigManager configManager)
+	ElAirsConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(ElTeaksConfiguration.class);
+		return configManager.getConfig(ElAirsConfiguration.class);
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class ElTeaksPlugin extends Plugin
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElTeaks"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("ElAirs"))
 		{
 			return;
 		}
@@ -169,7 +169,7 @@ public class ElTeaksPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("ElTeaks"))
+		if (!event.getGroup().equals("ElAirs"))
 		{
 			return;
 		}
@@ -219,7 +219,7 @@ public class ElTeaksPlugin extends Plugin
 		}
 	}
 
-	private ElTeaksState getBankState()
+	private ElAirsState getBankState()
 	{
 		if(utils.inventoryFull()){
 			return DEPOSIT_ITEMS;
@@ -230,7 +230,7 @@ public class ElTeaksPlugin extends Plugin
 		return UNHANDLED_STATE;
 	}
 
-	public ElTeaksState getState()
+	public ElAirsState getState()
 	{
 		if (timeout > 0)
 		{
@@ -252,7 +252,7 @@ public class ElTeaksPlugin extends Plugin
 			return ANIMATING;
 		}
 		else {
-			return getTeaksState();
+			return getAirsState();
 		}
 	}
 
@@ -318,7 +318,7 @@ public class ElTeaksPlugin extends Plugin
 		}
 	}
 
-	private ElTeaksState getTeaksState()
+	private ElAirsState getAirsState()
 	{
 		if(!utils.inventoryFull()){
 			if(player.getWorldArea().intersectsWith(SOUTH_SHORTCUT)){

@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.ElTeaks;
+package net.runelite.client.plugins.ElAirs;
 
 import net.runelite.client.config.Button;
 import net.runelite.client.config.Config;
@@ -34,8 +34,8 @@ import net.runelite.client.config.ConfigTitleSection;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Title;
 
-@ConfigGroup("ElTeaks")
-public interface ElTeaksConfiguration extends Config
+@ConfigGroup("ElAirs")
+public interface ElAirsConfiguration extends Config
 {
 
 	@ConfigSection(
@@ -232,12 +232,12 @@ public interface ElTeaksConfiguration extends Config
 	)
 	default String instructions()
 	{
-		return "Cuts and banks teaks. ";
+		return "Crafts at the air altar. ";
 	}
 
 	@ConfigTitleSection(
-		keyName = "teaksTitle",
-		name = "Teaks Configuration",
+		keyName = "elAirsTitle",
+		name = "Airs Configuration",
 		description = "",
 		position = 60
 	)
@@ -251,7 +251,7 @@ public interface ElTeaksConfiguration extends Config
 		name = "Enable UI",
 		description = "Enable to turn on in game UI",
 		position = 140,
-		titleSection = "teaksTitle"
+		titleSection = "elAirsTitle"
 	)
 	default boolean enableUI()
 	{
