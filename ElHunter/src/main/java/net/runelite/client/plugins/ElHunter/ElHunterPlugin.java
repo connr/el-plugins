@@ -68,6 +68,7 @@ public class ElHunterPlugin extends Plugin
 	boolean startHunter;
 	ElHunterState status;
 	List<Integer> REQUIRED_ITEMS = new ArrayList<>();
+	WorldPoint startPoint;
 
 	//overlay data
 	Instant botTimer;
@@ -116,6 +117,14 @@ public class ElHunterPlugin extends Plugin
 				targetMenu = null;
 				botTimer = Instant.now();
 				overlayManager.add(overlay);
+				if(config.type().equals(ElHunterType.BIRDS)){
+					try {
+						startPoint = client.getLocalPlayer().getWorldLocation();
+					} catch (Exception e) {
+						utils.sendGameMessage("COULDNT FIND PLAYERS WORLD LOCATION.");
+						startHunter=false;
+					}
+				}
 			} else {
 				shutDown();
 			}
@@ -138,6 +147,9 @@ public class ElHunterPlugin extends Plugin
 			case SWAMP_LIZARDS:
 			case RED_SALAMANDER:
 				REQUIRED_ITEMS = List.of(954,303);
+				break;
+			case BIRDS:
+				REQUIRED_ITEMS = List.of(10006);
 				break;
 			case FALCONRY:
 				REQUIRED_ITEMS = null;
@@ -253,6 +265,8 @@ public class ElHunterPlugin extends Plugin
 				return getRedSalamanderState();
 			case FALCONRY:
 				return getFalconryState();
+			case BIRDS:
+				return getBirdState();
 		}
 		return UNKNOWN;
 	}
@@ -265,25 +279,6 @@ public class ElHunterPlugin extends Plugin
 		}
 
 		return new Point(client.getCanvasWidth()-utils.getRandomIntBetweenRange(0,2),client.getCanvasHeight()-utils.getRandomIntBetweenRange(0,2));
-	}
-
-	private int checkRunEnergy()
-	{
-		try{
-			return client.getEnergy();
-		} catch (Exception ignored) {
-
-		}
-		return 0;
-	}
-
-	private int checkHitpoints()
-	{
-		try{
-			return client.getBoostedSkillLevel(Skill.HITPOINTS);
-		} catch (Exception e) {
-			return 0;
-		}
 	}
 
 	private void shouldRun()
@@ -446,6 +441,47 @@ public class ElHunterPlugin extends Plugin
 			if(projectile.getId()==922){
 				return true;
 			}
+		}
+		return false;
+	}
+
+	private ElHunterState getBirdState()
+	{
+		utils.setMenuEntry(null);
+		if(dropBirds()){
+			return DROPPING;
+		} else if(checkForGroundItems()){
+			return PICKING_UP;
+		} else {
+			if(utils.getLocalGameObjects(10,9373).size()+utils.getLocalGameObjects(10,9349).size()+utils.getLocalGameObjects(10,9345).size()==0){
+				utils.sendGameMessage(startPoint.toString());
+				if(client.getLocalPlayer().getWorldLocation().distanceTo2D(startPoint)>3){
+					utils.walk(startPoint,0,sleepDelay());
+					return WALKING;
+				} else {
+					targetMenu = new MenuEntry("","",10006,33,utils.getInventoryWidgetItem(10006).getIndex(),9764864,false);
+					utils.delayMouseClick(utils.getInventoryWidgetItem(10006).getCanvasBounds(), sleepDelay());
+					return SETTING_TRAP;
+				}
+			} else {
+				if(utils.getLocalGameObjects(10,9373).size()>0){
+					targetObject=utils.findNearestGameObject(9373);
+					if(targetObject!=null){
+						targetMenu = new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+						utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+						return CHECKING_TRAP;
+					}
+				}
+			}
+		}
+		return UNKNOWN;
+	}
+
+	private boolean dropBirds()
+	{
+		if(utils.getInventorySpace()<3){
+			utils.dropItems(new HashSet<>(Arrays.asList(9978,526)),true,config.sleepMin(),config.sleepMax());
+			return true;
 		}
 		return false;
 	}

@@ -15,5 +15,6 @@ public enum ElHunterState
 	DROPPING,
 	ITERATING,
 	PICKING_UP,
+	WALKING,
 	UNKNOWN;
 }

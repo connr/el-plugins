@@ -97,7 +97,6 @@ public interface ElHunterConfig extends Config
 	}
 
 
-
 	@ConfigTitleSection(
 			keyName = "delayTitle",
 			name = "Delay Config",
