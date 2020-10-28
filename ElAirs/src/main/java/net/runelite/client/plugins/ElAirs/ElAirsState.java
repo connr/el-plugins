@@ -3,7 +3,6 @@ package net.runelite.client.plugins.ElAirs;
 public enum ElAirsState
 {
 	ANIMATING,
-	FIND_TEAK,
 	MOVING,
 	TIMEOUT,
 	BANK_NOT_FOUND,
@@ -11,5 +10,11 @@ public enum ElAirsState
 	DEPOSIT_ITEMS,
 	HANDLE_BREAK,
 	USE_SHORTCUT,
+	ENTER_ALTAR,
+	CRAFT_RUNES,
+	USE_PORTAL,
+	WALK_FIRST_POINT,
+	WALK_SECOND_POINT,
+	WITHDRAW_ITEMS,
 	UNHANDLED_STATE;
 }

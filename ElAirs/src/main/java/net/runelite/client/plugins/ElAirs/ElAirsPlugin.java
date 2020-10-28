@@ -37,6 +37,7 @@ import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -98,7 +99,14 @@ public class ElAirsPlugin extends Plugin
 	Player player;
 	Rectangle altRect = new Rectangle(-100,-100, 10, 10);
 
-	WorldArea SOUTH_SHORTCUT = new WorldArea(new WorldPoint(3713,3800,0),new WorldPoint(3744,3817,0));
+	WorldArea FALADOR_EAST_BANK = new WorldArea(new WorldPoint(3009,3353,0),new WorldPoint(3019,3359,0));
+	WorldArea FIRST_POINT = new WorldArea(new WorldPoint(3004,3314,0),new WorldPoint(3009,3319,0));
+	WorldArea SECOND_POINT = new WorldArea(new WorldPoint(3003,3325,0),new WorldPoint(3010,3332,0));
+	WorldArea AIR_ALTAR = new WorldArea(new WorldPoint(2839,4826,0),new WorldPoint(2849,4840,0));
+
+	WorldPoint FIRST_CLICK = new WorldPoint(3006,3315,0);
+	WorldPoint SECOND_CLICK = new WorldPoint(3006,3330,0);
+	WorldPoint OUTSIDE_ALTAR = new WorldPoint(2983,3288,0);
 
 	int timeout = 0;
 	int teaksCut;
@@ -204,30 +212,16 @@ public class ElAirsPlugin extends Plugin
 		return tickLength;
 	}
 
-	private void openBank()
-	{
-		targetObject = utils.findNearestGameObject(31427);
-		if (targetObject != null)
-		{
-			targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
-		}
-		else
-		{
-			log.info("Banker is null");
-		}
-	}
-
 	private ElAirsState getBankState()
 	{
 		if(utils.inventoryFull()){
+			return WALK_FIRST_POINT;
+		}
+		else if(utils.inventoryContains(556)){
 			return DEPOSIT_ITEMS;
+		} else {
+			return WITHDRAW_ITEMS;
 		}
-		if(!utils.inventoryFull()){
-			return USE_SHORTCUT;
-		}
-		return UNHANDLED_STATE;
 	}
 
 	public ElAirsState getState()
@@ -241,7 +235,7 @@ public class ElAirsPlugin extends Plugin
 			timeout = 2 + tickDelay();
 			return MOVING;
 		}
-		else if (chinBreakHandler.shouldBreak(this) && !player.getWorldArea().intersectsWith(SOUTH_SHORTCUT))
+		else if (chinBreakHandler.shouldBreak(this) && player.getWorldArea().intersectsWith(FALADOR_EAST_BANK))
 		{
 			return HANDLE_BREAK;
 		}
@@ -280,10 +274,6 @@ public class ElAirsPlugin extends Plugin
 					utils.handleRun(30, 20);
 					timeout--;
 					break;
-				case FIND_TEAK:
-					chopTeak();
-					timeout = tickDelay();
-					break;
 				case HANDLE_BREAK:
 					chinBreakHandler.startBreak(this);
 					timeout = 10;
@@ -294,15 +284,36 @@ public class ElAirsPlugin extends Plugin
 					timeout = tickDelay();
 					break;
 				case FIND_BANK:
-					openBank();
+					useGameObject(24101,4);
 					timeout = tickDelay();
 					break;
 				case DEPOSIT_ITEMS:
-					utils.depositAll();
+					depositItem(556);
 					timeout = tickDelay();
 					break;
-				case USE_SHORTCUT:
-					useShortcut();
+				case WITHDRAW_ITEMS:
+					utils.withdrawAllItem(1436);
+					timeout = tickDelay();
+					break;
+				case ENTER_ALTAR:
+					useTalismanOnAltar();
+					timeout = tickDelay();
+					break;
+				case CRAFT_RUNES:
+					useGameObject(34760,3);
+					timeout = tickDelay();
+					break;
+				case USE_PORTAL:
+					useGameObject(34748,3);
+					timeout = tickDelay();
+					break;
+				case WALK_SECOND_POINT:
+					utils.walk(SECOND_CLICK,2,sleepDelay());
+					timeout = tickDelay();
+					break;
+				case WALK_FIRST_POINT:
+					utils.walk(FIRST_CLICK,1,sleepDelay());
+					timeout = tickDelay();
 					break;
 			}
 		}
@@ -320,19 +331,25 @@ public class ElAirsPlugin extends Plugin
 
 	private ElAirsState getAirsState()
 	{
-		if(!utils.inventoryFull()){
-			if(player.getWorldArea().intersectsWith(SOUTH_SHORTCUT)){
-				return USE_SHORTCUT;
-			} else {
-				return FIND_TEAK;
+		utils.setMenuEntry(null);
+		if(utils.inventoryContains(1436)){
+			if(player.getWorldArea().intersectsWith(FIRST_POINT)){
+				return ENTER_ALTAR;
+			} else if (player.getWorldArea().intersectsWith(AIR_ALTAR)){
+				return CRAFT_RUNES;
 			}
 		} else {
-			if(player.getWorldArea().intersectsWith(SOUTH_SHORTCUT)){
+			if (player.getWorldArea().intersectsWith(AIR_ALTAR)){
+				return USE_PORTAL;
+			} else if (player.getWorldLocation().equals(OUTSIDE_ALTAR)){
+				return WALK_SECOND_POINT;
+			} else if (player.getWorldArea().intersectsWith(SECOND_POINT)){
 				return FIND_BANK;
-			} else {
-				return USE_SHORTCUT;
+			} else if (player.getWorldArea().intersectsWith(FALADOR_EAST_BANK)){
+				return FIND_BANK;
 			}
 		}
+		return UNHANDLED_STATE;
 	}
 
 	@Subscribe
@@ -340,57 +357,38 @@ public class ElAirsPlugin extends Plugin
 		log.debug(event.toString());
 	}
 
-	private void useShortcut()
+	private void useTalismanOnAltar()
 	{
-		if(player.getWorldArea().intersectsWith(SOUTH_SHORTCUT)){
-			targetObject = utils.findNearestGameObject(31481);
-			if(targetObject!=null){
-				targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-				utils.setMenuEntry(targetMenu);
+		targetObject = utils.findNearestGameObject(34813);
+		if(targetObject!=null){
+			client.setSelectedItemWidget(WidgetInfo.INVENTORY.getId());
+			client.setSelectedItemSlot(0);
+			client.setSelectedItemID(1438);
+			targetMenu = new MenuEntry("","",targetObject.getId(),1,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setMenuEntry(targetMenu);
+			if(targetObject.getConvexHull()!=null){
 				utils.delayMouseClick(targetObject.getConvexHull().getBounds(),sleepDelay());
+			} else {
+				utils.delayMouseClick(new Point(0,0),sleepDelay());
 			}
-		} else {
-			targetObject = utils.findNearestGameObject(31482);
-			if(targetObject!=null){
-				targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-				utils.setMenuEntry(targetMenu);
-				utils.delayMouseClick(targetObject.getConvexHull().getBounds(),sleepDelay());
-			}
+
 		}
 	}
 
-	private void chopTeak()
+	private void useGameObject(int id, int opcode)
 	{
-		if(client.getVarbitValue(4953)==0){
-			targetObject=utils.findNearestGameObject(30482);
-			if(targetObject!=null){
-				targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-				utils.setMenuEntry(targetMenu);
-				utils.delayMouseClick(targetObject.getConvexHull().getBounds(),sleepDelay());
-			}
-		} else if(client.getVarbitValue(4955)==0){
-			targetObject=utils.findNearestGameObject(30480);
-			if(targetObject!=null){
-				targetMenu=new MenuEntry("","",targetObject.getId(),3,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-				utils.setMenuEntry(targetMenu);
-				utils.delayMouseClick(targetObject.getConvexHull().getBounds(),sleepDelay());
-			}
+		targetObject = utils.findNearestGameObject(id);
+		if(targetObject!=null){
+			targetMenu = new MenuEntry("","",targetObject.getId(),opcode,targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			utils.setMenuEntry(targetMenu);
+			utils.delayMouseClick(targetObject.getConvexHull().getBounds(),sleepDelay());
 		}
 	}
 
-	@Subscribe
-	private void onItemContainerChanged(ItemContainerChanged event){
-		if (event.getContainerId() != 93 || !startTeaks)
-		{
-			return;
-		} else {
-			if(oldInventCount==-1){
-				event.getItemContainer().count(6333);
-			}
-			if(event.getItemContainer().count(6333)>oldInventCount){
-				teaksCut++;
-			}
-			oldInventCount=event.getItemContainer().count(6333);
-		}
+	private void depositItem(int id)
+	{
+		targetMenu = new MenuEntry("", "", 8, 57, utils.getInventoryWidgetItem(id).getIndex(),983043,false);
+		utils.setMenuEntry(targetMenu);
+		utils.delayMouseClick(utils.getInventoryWidgetItem(id).getCanvasBounds(),sleepDelay());
 	}
 }

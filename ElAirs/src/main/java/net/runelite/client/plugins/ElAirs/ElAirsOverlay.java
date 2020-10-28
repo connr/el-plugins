@@ -62,7 +62,6 @@ class ElAirsOverlay extends OverlayPanel
 			}
 		}
 		tableComponent.addRow("Status:", infoStatus);
-		tableComponent.addRow("Teaks Cut:", String.valueOf(plugin.teaksCut));
 
 		TableComponent tableDelayComponent = new TableComponent();
 		tableDelayComponent.setColumnAlignments(TableAlignment.LEFT, TableAlignment.RIGHT);
