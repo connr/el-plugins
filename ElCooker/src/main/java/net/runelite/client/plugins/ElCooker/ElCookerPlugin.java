@@ -499,7 +499,7 @@ public class ElCookerPlugin extends Plugin
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
-		log.info(event.toString());
+		log.debug(event.toString());
 		if(config.valueFinder()){
 			utils.sendGameMessage("Id: " + event.getIdentifier() + ", Op Code: " + event.getOpcode() + ".");
 		}
