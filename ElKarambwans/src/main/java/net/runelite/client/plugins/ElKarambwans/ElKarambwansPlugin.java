@@ -408,6 +408,6 @@ public class ElKarambwansPlugin extends Plugin
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
-		log.info(event.toString());
+		log.debug(event.toString());
 	}
 }
