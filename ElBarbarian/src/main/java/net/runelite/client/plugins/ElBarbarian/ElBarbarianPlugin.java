@@ -372,6 +372,6 @@ public class ElBarbarianPlugin extends Plugin
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event){
-		log.info(event.toString());
+		log.debug(event.toString());
 	}
 }
