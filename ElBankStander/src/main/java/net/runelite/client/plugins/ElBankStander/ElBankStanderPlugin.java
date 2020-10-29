@@ -364,7 +364,7 @@ public class ElBankStanderPlugin extends Plugin
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked e)
 	{
-		log.info(e.toString());
+		log.debug(e.toString());
 	}
 
 	@Subscribe
