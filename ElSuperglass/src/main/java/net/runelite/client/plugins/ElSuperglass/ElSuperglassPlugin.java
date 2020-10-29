@@ -230,7 +230,7 @@ public class ElSuperglassPlugin extends Plugin
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event)
 	{
-		log.info(event.toString());
+		log.debug(event.toString());
 		if(targetMenu!=null){
 			event.consume();
 			client.invokeMenuAction(targetMenu.getOption(), targetMenu.getTarget(), targetMenu.getIdentifier(), targetMenu.getOpcode(),
